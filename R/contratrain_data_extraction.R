@@ -76,6 +76,7 @@ filtered <- nonzero %>%
 
 
 
+
 # Create dge lists and calculate norm factors
 dge_ct   <- DGEList(filtered[,-1])
 
@@ -127,6 +128,15 @@ annotation <- inner_join(filtered, annotation, by= c("gene_name" = "external_gen
 
 #check the unique biotypes
 unique(annotation$gene_biotype)
+
+#Extract only the those annotated as protein coding and lncRNA"
+#This will be used for exploratory data analyses
+mRNAs_and_lncs <- annotation %>%
+  dplyr::filter(gene_biotype == "lncRNA" | gene_biotype == "protein_coding")
+
+unique(mRNAs_and_lncs$gene_biotype)
+
+#saveRDS(mRNAs_and_lncs, file = "data/protein_coding_and_lncRNA_genes_combined.RDS")
 
 
 #xtract only the lncRNAs and save in the data file

@@ -20,7 +20,13 @@ Long non-coding RNAs (lncRNAs) are said to regulate gene expression and are poor
 
 ```{r}
 #| echo: false
-1 + 1
+#| load functions and libraries needed
+#| #Load the needed libraries
+source("R/libraries.R")
+
+#Load the functions most regularly used
+source("R/Trainome_functions.R")
+
 ```
 
 You can add options to executable code like this
