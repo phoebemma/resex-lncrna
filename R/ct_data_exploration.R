@@ -16,10 +16,33 @@ genes <- readRDS("data/protein_coding_and_lncRNA_genes_combined.RDS")
 
 # mRNA_genes <-readRDS("data/protein_coding_genes.RDS")
 # 
-# #Load the lnc Genes
+
+
+genes%>%
+  group_by(gene_name, gene_biotype) %>%
+  ggplot(aes(x = gene_biotype))+
+  geom_bar()+
+  theme(axis.text.x = element_text( vjust = 1, hjust = 0.5))+
+  geom_text(stat = "count",  aes(label= after_stat(count)), vjust = -0.5)
+
 # 
-# lncRNA <- readRDS("data/lncRNA_genes.RDS")
+# trained_df <- meta_df %>%
+#   dplyr::filter(training_status == "trained")
 # 
+# 
+# trained_genes <- genes %>%
+#   dplyr::select(gene_name, gene_biotype, any_of(trained_df$seq_sample_id)) 
+# 
+# trained_genes %>%
+#   group_by(gene_name, gene_biotype) %>%
+#   ggplot(aes(x = gene_biotype))+
+#   geom_bar()+
+#   theme(axis.text.x = element_text( vjust = 1, hjust = 0.5))+
+#   geom_text(stat = "count",  aes(label= after_stat(count)), vjust = -0.5)
+# 
+
+
+
 # 
 # #convert the genes into  long formats
 
