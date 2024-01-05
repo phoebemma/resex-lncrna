@@ -35,10 +35,10 @@ plot_volcano <- function(x, y){
   
   ## Change point color 
   
-  # 1. by default, it is assigned to the categories in an alphabetical order):
+ 
   p3 <- p2 + scale_color_manual(values=c("blue", "black", "red"))
   
-  # 2. to automate a bit: ceate a named vector: the values are the colors to be used, the names are the categories they will be assigned to:
+  
   mycolors <- c("blue", "red", "black")
   names(mycolors) <- c("DOWN", "UP", "NO")
   p3 <- p2 + scale_colour_manual(values = mycolors)
