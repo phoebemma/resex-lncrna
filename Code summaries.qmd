@@ -47,7 +47,6 @@ ct_metadata <- ct_samples %>% inner_join(ct_participants, by = c("study", "parti
   drop_na()%>%
   #drop columns not needed for lncRNA analyses
   dplyr::select(-c("study", "leg", "thickness")) %>%
-  #inner_join(ct_strength, by = c("study", "participant", "group", "leg", "condition", "time"))
   mutate(time = factor(time, levels = c("t1", "t3",   "t4")), 
          condition = factor(condition, levels = c("set0", "set3", "set6")), 
          sex = factor(sex, levels = c("male", "female")),
@@ -187,4 +186,531 @@ mRNAs <- annotation %>%
 #Save the file
 #saveRDS(mRNAs, file = "data/protein_coding_genes.RDS")
 
+```
+
+## Model building using seq-wrapper
+
+This details how seq-wrapper was used to build two models. One to analyse the lnc based on trained versus untrained legs. IE, set0 versus set6 and set3 legs.
+
+The other model analyses the volume-dependent changes in differentially expressed lncs
+
+```{r}
+#| echo: false
+
+#Define the model parametes
+
+
+#Volume dependednt model parameters
+ args<- list(formula = y ~  efflibsize + condition*time +(1|participant),
+            family = glmmTMB::nbinom2())
+
+
+#argument for a second model that looks at trained versus untrained
+
+args_2<- list(formula = y ~  efflibsize + training_status*time +(1|participant),
+            family = glmmTMB::nbinom2())
+
+
+
+#Volume_dependent model
+results <- seq_wrapper(fitting_fun = glmmTMB::glmmTMB,
+                       arguments = args,
+                       data = lncRNAs,
+                       metadata = ct_metadata,
+                       samplename = "seq_sample_id",
+                       summary_fun = sum_fun,
+                       eval_fun = eval_mod,
+                       exported = list(),
+                       #return_models = F,
+                       #subset = NULL,
+                       cores = ncores)
+
+#saveRDS(results, file = "./data/gene_lncRNA_model.RDS")
+
+
+#Model for the trained versus untrained 
+
+results_2 <- seq_wrapper(fitting_fun = glmmTMB::glmmTMB,
+                       arguments = args_2,
+                       data = lncRNAs,
+                       metadata = ct_metadata,
+                       samplename = "seq_sample_id",
+                       summary_fun = sum_fun,
+                       eval_fun = eval_mod,
+                       exported = list(),
+                       #return_models = F,
+                       #subset = NULL,
+                       cores = ncores)
+
+
+
+
+
+
+#Combine the model evaluations in a dataframe each
+ model_eval_df <- bind_rows(results$model_evaluations) %>%
+   mutate(target = names(results$model_evaluations)) %>%
+   print()
+
+
+
+ model_eval_df_2 <- bind_rows(results_2$model_evaluations) %>%
+   mutate(target = names(results_2$model_evaluations)) %>%
+   print()
+ 
+
+#get the model evaluations
+
+model_eval_df %>%
+  ggplot(aes(pval.unif)) + geom_histogram() +
+  ggtitle("contratrain gene level model evaluation gene level")+
+  theme(axis.text = element_text(size = 15), text = element_text(size = 15),
+        plot.title = element_text(hjust = 0.5))
+
+model_eval_df %>%
+  ggplot(aes(pval.disp)) + geom_histogram() +
+  ggtitle("contratrain gene level model evaluation gene level")+
+  theme(axis.text = element_text(size = 15), text = element_text(size = 15),
+        plot.title = element_text(hjust = 0.5))
+
+
+model_eval_df %>%
+  ggplot(aes(pval.zinfl)) + geom_histogram() +
+  ggtitle("contratrain gene level model evaluation gene level")+
+  theme(axis.text = element_text(size = 15), text = element_text(size = 15),
+        plot.title = element_text(hjust = 0.5))
+
+
+
+
+
+
+#get the model evaluation for trained_vs_untrained model
+
+model_eval_df_2 %>%
+  ggplot(aes(pval.unif)) + geom_histogram() +
+  ggtitle("contratrain gene level model evaluation gene level")+
+  theme(axis.text = element_text(size = 15), text = element_text(size = 15),
+        plot.title = element_text(hjust = 0.5))
+
+model_eval_df_2 %>%
+  ggplot(aes(pval.disp)) + geom_histogram() +
+  ggtitle("contratrain gene level model evaluation gene level")+
+  theme(axis.text = element_text(size = 15), text = element_text(size = 15),
+        plot.title = element_text(hjust = 0.5))
+
+
+model_eval_df_2 %>%
+  ggplot(aes(pval.zinfl)) + geom_histogram() +
+  ggtitle("contratrain gene level model evaluation gene level")+
+  theme(axis.text = element_text(size = 15), text = element_text(size = 15),
+        plot.title = element_text(hjust = 0.5))
+
+
+
+#plot values of some coefficients
+
+bind_rows(results$model_summarises) %>%
+  mutate(target = rep(names(results$model_summarises), each = 10)) %>%
+  dplyr::filter(coef == "timet4") %>%
+  ggplot(aes(Pr...z..)) + geom_histogram(bins = 80) +
+  ggtitle("contratrain Pvalues timet4")+
+  theme(axis.text = element_text(size = 15), text = element_text(size = 15),
+        plot.title = element_text(hjust = 0.5))
+
+
+
+bind_rows(results_2$model_summarises) %>%
+  mutate(target = rep(names(results_2$model_summarises), each = 7)) %>%
+  dplyr::filter(coef == "timet4") %>%
+  ggplot(aes(Pr...z..)) + geom_histogram(bins = 80) +
+  ggtitle("contratrain Pvalues timet4")+
+  theme(axis.text = element_text(size = 15), text = element_text(size = 15),
+        plot.title = element_text(hjust = 0.5))
+
+
+
+
+
+
+#get the model summaries of both models
+
+model_sum_df <- bind_rows(results$model_summarises) %>%
+  mutate(target = rep(names(results$model_summarises), each = 10))%>%
+  subset(!coef == "(Intercept)") %>%
+  mutate(adj.p = p.adjust(Pr...z.., method = "fdr"),
+         log2fc = Estimate/log(2),
+         
+         fcthreshold = if_else(abs(log2fc) > 0.5, "s", "ns"))
+
+
+
+
+model_sum_df_2 <- bind_rows(results_2$model_summarises) %>%
+  mutate(target = rep(names(results_2$model_summarises), each = 7))%>%
+  subset(!coef == "(Intercept)") %>%
+  mutate(adj.p = p.adjust(Pr...z.., method = "fdr"),
+         log2fc = Estimate/log(2),
+         
+         fcthreshold = if_else(abs(log2fc) > 0.5, "s", "ns"))
+
+
+#merge the model summaries and model evaluation into one dataframe
+model_results <- inner_join(model_sum_df, model_eval_df, by = "target") #%>%
+  dplyr::filter(Pr...z.. <= 0.05 & fcthreshold == "s"  & pval.disp >= 0.05 
+                & pval.unif >= 0.05) %>%
+  print()
+
+
+#saveRDS(model_results, file = "./data/gene_level_data/filtered_gene_lncRNA_model.RDS")
+
+  
+  
+  #merge the model summaries and model evaluation into one dataframe
+  model_results_2<- inner_join(model_sum_df_2, model_eval_df_2, by = "target") #%>%
+  dplyr::filter(Pr...z.. <= 0.05 & fcthreshold == "s"  & pval.disp >= 0.05 
+                & pval.unif >= 0.05) %>%
+    print()
+  
+  
+#saveRDS(model_results_2, file = "./data/gene_level_data/trained_vs_untrained_model.RDS")
+
+#saveRDS(model_results, file = "./data/gene_level_data/condition_model.RDS")
+
+
+unique(model_results$coef)
+
+unique(model_results_2$coef)
+
+
+```
+
+## Model exploration
+
+The following lines of code explores the trained versus untrained model.
+
+To make the volcano plot, showing deferentially expressed lncRNAs, I wrote a function named "plot_volcano"
+
+```{r}
+#| echo: false
+#extract the differentialy expressed transcripts by time t4
+
+t4 <- model_results_2 %>%
+  dplyr::filter(coef == "timet4")
+
+#make a volcano plot using the plot_volcano function
+jpeg(filename = "./plots/DE_t4_trained_vs_untrained.jpeg",
+    width = 850, height = 500, quality = 120)
+plot_volcano(t4, "DE lncs post exercise (trained_versus_untrained)")
+dev.off()
+
+
+#plot for time t3
+
+t3 <- model_results_2 %>%
+  dplyr::filter(coef == "timet3")
+
+#make a volcano plot using the plot_volcano function
+jpeg(filename = "./plots/DE_t3_trained_vs_untrained.jpeg",
+     width = 850, height = 500, quality = 100)
+plot_volcano(t3, "DE lncs mid exercise exercise (trained_versus_untrained)")
+dev.off()
+
+
+
+# Plot for the trained versus untrained
+trained <- model1 %>%
+  dplyr::filter(coef == "training_statustrained")
+
+#make a volcano plot using the plot_volcano function
+jpeg(filename = "./plots/DE_trained_vs_untrained.jpeg",
+     quality = 100)
+plot_volcano(trained, "DE lncs in trained_versus_untrained")
+dev.off()
+
+
+
+
+#Plot for interaction between the trained and post_exercise
+
+trained_t4 <- model_results_2 %>%
+  dplyr::filter(coef == "training_statustrained:timet4")
+
+#make a volcano plot using the plot_volcano function
+jpeg(filename = "./plots/DE_trained_and_postexc.jpeg",
+     width = 850, height = 500, quality = 100)
+plot_volcano(trained_t4, "DE lncs trained at post exercise")
+dev.off()
+
+
+
+#Plot for interaction between the trained and mid_exercise
+
+trained_t3 <- model_results_2 %>%
+  dplyr::filter(coef == "training_statustrained:timet3")
+
+#make a volcano plot using the plot_volcano function
+jpeg(filename = "./plots/DE_trained_and_midexc.jpeg",
+     width = 850, height = 500, quality = 100)
+plot_volcano(trained_t3, "DE lncs trained at mid exercise")
+dev.off()
+
+
+
+### Load the second model
+#This looked at the interaction between the volume of exercise done
+
+
+
+
+
+
+#post exercise in the conditional model
+
+t4_cond <- model_results %>%
+  dplyr::filter(coef == "timet4")
+
+#make a volcano plot using the plot_volcano function
+jpeg(filename = "./plots/DE_cond_model_t4.jpeg",
+     width = 850, height = 500, quality = 100)
+plot_volcano(t4_cond, "DE lncs post execrcise in conditional model")
+dev.off()
+
+
+
+#post exercise in the conditional model
+
+t3_cond <- model_results %>%
+  dplyr::filter(coef == "timet3")
+
+#make a volcano plot using the plot_volcano function
+jpeg(filename = "./plots/DE_cond_model_t3.jpeg",
+     width = 850, height = 500, quality = 100)
+plot_volcano(t3_cond, "DE lncs mid execrcise in conditional model")
+dev.off()
+
+
+
+
+
+#post exercise and set6 in the conditional model
+
+set6_t4 <- model_results %>%
+  dplyr::filter(coef == "conditionset6:timet4")
+
+#make a volcano plot using the plot_volcano function
+jpeg(filename = "./plots/DE_cond_model_set6_t4.jpeg",
+     width = 850, height = 500, quality = 100)
+plot_volcano(set6_t4, "DE lncs post exercise in set 6")
+dev.off()
+
+
+
+
+#post exercise and set3 in the conditional model
+
+set3_t4 <- model_results %>%
+  dplyr::filter(coef == "conditionset3:timet4")
+
+#make a volcano plot using the plot_volcano function
+jpeg(filename = "./plots/DE_cond_model_set3_t4.jpeg",
+     width = 850, height = 500, quality = 100)
+plot_volcano(set3_t4, "DE lncs post exercise in set 3")
+dev.off()
+
+
+#differentially expressed in set3
+set3 <- model_results %>%
+  dplyr::filter(coef == "conditionset3")
+
+#make a volcano plot using the plot_volcano function
+jpeg(filename = "./plots/DE_cond_model_set3.jpeg",
+     width = 850, height = 500, quality = 100)
+plot_volcano(set3, "DE lncs in set 3")
+dev.off()
+
+
+#differentially expressed in set
+set6 <- model_results %>%
+  dplyr::filter(coef == "conditionset6")
+
+#make a volcano plot using the plot_volcano function
+jpeg(filename = "./plots/DE_cond_model_set6.jpeg",
+     width = 850, height = 500, quality = 100)
+plot_volcano(set6, "DE lncs in set 6")
+dev.off()
+
+
+
+
+
+```
+
+## Correlation analyses
+
+This explored the correlation between the deferentially expressed lncs and protein-coding genes
+
+```{r}
+#Correlation analyses
+#This will check the correlation between the significantly DE lncs and Protein coding genes from the data
+
+#subset the interaction between trained and post exercise data
+
+sig_trained_t4 <- trained_t3%>%
+  dplyr::filter(Pr...z.. <= 0.05 & fcthreshold == "s"  & pval.disp >= 0.05 
+                                          & pval.unif >= 0.05) %>%
+  print()
+
+ 
+ 
+ 
+
+ #extract the intersect from the genes of interest
+ lncRNAs_of_int <- lncRNAs[lncRNAs$gene_name %in% sig_trained_t4$target, ]
+
+ 
+ 
+ 
+ # Extract sample_ids that are common between lncRNAand protein_coding
+ corr_intersect <- (intersect(colnames(lncRNAs_of_int), colnames(mRNAs)))
+ 
+ #extract the intersect from the protein coding data
+ protein_coding <- mRNAs %>%
+   subset( select = ( corr_intersect))
+ 
+ 
+ cor_results_j <-list()
+ cor_results_i <- list()
+ 
+ for (i in 1:length(lncRNAs_of_int$gene_name)){
+   
+   
+   for (j in 1:length(protein_coding$gene_name)){
+     
+     lncRNA_Vector <- as.numeric(lncRNAs_of_int[i,-1])
+     protein_coding_vector <- as.numeric(protein_coding[j,-1 ])
+     
+     cor_test_result <- cor.test(lncRNA_Vector, protein_coding_vector)
+     # cor_results <- do.call(rbind.data.frame(cor_test_result))
+     
+     cor_results_j[[j]] <- data.frame(
+       lncRNA = as.character(lncRNAs_of_int[i,1]),
+       protein_coding_gene = as.character(protein_coding[j, 1]),
+       correlation_coefficient = cor_test_result$estimate,
+       p_value = cor_test_result$p.value, 
+       row.names = NULL)
+     
+     
+     
+   } 
+   
+   cor_results_i[[i]] <-  bind_rows(cor_results_j)
+   
+ }
+ 
+ 
+ correlation_results <- bind_rows(cor_results_i) #%>%
+ #ggplot(aes(correlation_coefficient)) + geom_histogram()
+ 
+ 
+ 
+ 
+ correlation_results %>%
+   round_df(3) %>%
+   ggplot(aes(y = p_value, x = correlation_coefficient)) + geom_point()+
+   ggtitle("Distribution of correlation coefficients by p values of the interaction time4 and trained individuals") +
+   theme(axis.text = element_text(size = 15), text = element_text(size = 15))
+ 
+ #saveRDS(correlation_results, file = "./data/correlation_results_filtered_by_t4.RDS")
+ significant_corr <- correlation_results %>% 
+   dplyr::filter(p_value <= 0.05)%>%
+   round_df(3)
+ 
+ 
+ 
+ 
+ significant_corr %>%
+   ggplot(aes(y = p_value, x = correlation_coefficient)) + geom_point()+
+   ggtitle("Significant correlation coefficients by p values at time t4")+
+   theme(axis.text = element_text(size = 15), text = element_text(size = 15))
+ 
+# saveRDS(significant_corr, file = "./data/gene_level_data/protein_lnc_significant_correlation.RDS")
+ 
+unique(mRNAs$gene_name)
+
+ 
+ results_end_2 <- getBM(attributes = c("ensembl_gene_id",
+                                       "external_gene_name", 
+                                       "ensembl_gene_id_version",
+                                       "transcript_biotype"), 
+                        values = significant_corr$protein_coding_gene, mart = ensembl )
+ 
+ 
+ #get the ensemble_gene_ids of the protein coding genes
+ prot_id <- getBM(attributes = c("ensembl_gene_id",
+                                 "external_gene_name", 
+                                 "ensembl_gene_id_version",
+                                 "transcript_biotype"), 
+                  values = mRNAs$gene_name , mart = ensembl )
+ 
+ 
+ proteinns <- prot_id[prot_id$external_gene_name %in% ct_genes$gene_name, ]
+ 
+ 
+ #length(unique(results_end_1$external_gene_name))
+ 
+ #merge and extract the protein coding transcripts
+
+ 
+ prots_of_int <- merge(significant_corr, results_end_2, by.x = "protein_coding_gene", by.y = "external_gene_name")
+ 
+
+ 
+ 
+ #explore the grch38 table loaded by the annotable library
+ ego_df <- enrichGO(gene = prots_of_int$ensembl_gene_id,
+                    universe = unique(proteinns$ensembl_gene_id),
+                    keyType = "ENSEMBL",
+                    OrgDb = org.Hs.eg.db, 
+                    ont = "MF", 
+                    pAdjustMethod = "BH", 
+                    qvalueCutoff = 0.05, 
+                    readable = T)
+ 
+ ## Output results from GO analysis to a table
+ cluster_summary <- data.frame(ego_df)
+ 
+ dotplot(ego_df, showCategory = 15,
+         
+         font.size = 8, title = "15 top ranked molecular functions in coexpressed protein-coding genes trained participants at t3") +
+   theme(axis.text = element_text(size = 15), axis.text.y = element_text(size = 15), axis.title.x = element_text(size = 20))
+ 
+ 
+ #visualize the enriched pathways using various tools
+ 
+ #browsekegg opens a browser interface
+ 
+ entrez_ids <- bitr(prots_of_int$ensembl_gene_id, "ENSEMBL", "ENTREZID", org.Hs.eg.db)
+ entrez_id_univers <- bitr(proteinns$ensembl_gene_id, "ENSEMBL", "ENTREZID", org.Hs.eg.db)
+ 
+ kegg_df <- enrichKEGG(gene = entrez_ids$ENTREZID,
+                       organism = "hsa",
+                       keyType = "kegg",
+                       # OrgDb = org.Hs.eg.db, 
+                       #ont = "MF", 
+                       universe = entrez_id_univers$ENTREZID,
+                       pAdjustMethod = "BH", 
+                       qvalueCutoff = 0.05)
+ 
+ kegg_summary <- data.frame(kegg_df)
+ 
+ #visualize the enriched pathways
+ 
+ 
+ 
+ 
+ barplot(kegg_df, showCategory = 20, title = "20 highest enriched pathways in co-expressed protein coding genes trained at t3")+
+   theme(axis.text = element_text(size = 15), axis.text.y = element_text(size = 9), axis.title.x = element_text(size = 20))
+ 
+ 
 ```
