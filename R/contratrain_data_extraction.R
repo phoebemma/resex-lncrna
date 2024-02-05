@@ -188,7 +188,8 @@ nonzero_2 <- lncRNAS %>%
 filtered_2 <- nonzero_2 %>%
   dplyr::filter(filterByExpr(nonzero_2[,-1], group = ct_metadata$time)) 
 
-
+#save the filtered lncRNA count file
+#saveRDS(filtered_2, file = "data/lncRNA_genes.RDS")
 
 
 
