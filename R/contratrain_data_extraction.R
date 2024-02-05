@@ -94,7 +94,10 @@ ct_metadata <- dge_ct$samples %>%
   #Remove the group.x column as it was used for filtering
   dplyr::select(-("group.x")) %>%
   #rename the group.y column as it it the original grouping of the data
-  rename("group" = "group.y") %>%
+  #rename the library size and the normalization factors to reflect that all biotypes are accounted for
+  rename("group" = "group.y", 
+         "lib.size_all" = "lib.size",
+         "norm.factors_all" = "norm.factors") %>%
   
   print()
 
@@ -203,12 +206,14 @@ ct_metadata <- dge_ct_2$samples %>%
   rownames_to_column(var = "seq_sample_id") %>%
   inner_join(ct_metadata, by = "seq_sample_id") %>%
   
-  mutate(efflibsize = (lib.size * norm.factors) / median(lib.size * norm.factors)) %>%
+  mutate(efflibsize_lncs = (lib.size * norm.factors) / median(lib.size * norm.factors)) %>%
   #Remove the group.x column as it was used for filtering
   dplyr::select(-("group.x")) %>%
   #rename the group.y column as it it the original grouping of the data
   rename("group" = "group.y") %>%
   
   print()
+
+#saveRDS(ct_metadata, file = "data/contratrain_metadata.RDS")
 
 
