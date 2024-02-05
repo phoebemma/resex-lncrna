@@ -1,5 +1,5 @@
 #Load the needed libraries
-source("/R/libraries.R")
+source("R/libraries.R")
 
 #Load the functions most regularly used
 source("R/Trainome_functions.R")
@@ -162,3 +162,53 @@ mRNAs <- annotation %>%
 
 #Save the file
 #saveRDS(mRNAs, file = "data/protein_coding_genes.RDS")
+
+
+
+
+
+
+
+
+
+
+
+
+#Extracting the library size based only on the lncRNAs
+
+# # Keep nonzero rows
+nonzero_2 <- lncRNAS %>%
+  dplyr::filter(rowSums(lncRNAS[,-1]) != 0)
+
+
+# # Keep filtered lncs (based on group)
+filtered_2 <- nonzero_2 %>%
+  dplyr::filter(filterByExpr(nonzero_2[,-1], group = ct_metadata$time)) 
+
+
+
+
+
+
+# Create dge lists and calculate norm factors
+dge_ct_2   <- DGEList(filtered_2[,-1])
+
+
+dge_ct_2  <- calcNormFactors(dge_ct_2 )
+
+
+
+## Add effective library size to 
+ct_metadata <- dge_ct_2$samples %>%
+  rownames_to_column(var = "seq_sample_id") %>%
+  inner_join(ct_metadata, by = "seq_sample_id") %>%
+  
+  mutate(efflibsize = (lib.size * norm.factors) / median(lib.size * norm.factors)) %>%
+  #Remove the group.x column as it was used for filtering
+  dplyr::select(-("group.x")) %>%
+  #rename the group.y column as it it the original grouping of the data
+  rename("group" = "group.y") %>%
+  
+  print()
+
+
