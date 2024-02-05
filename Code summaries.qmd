@@ -8,7 +8,7 @@ editor: visual
 
 This document attempts to summarize the files and scripts in this repository. It contains the attempts to analyse differentially expressed long non-coding RNAs (lncRNAs) using both the Seq_wrapper and its updated version "Seq Wrap".
 
-The analyses done using Seq_wrapper was saved the repository found here https://github.com/phoebemma/Contratrain_lncRNA_analyses . For clarity and ease , I added them to this repo as well
+The analyses done using Seq_wrapper were saved the repository found here https://github.com/phoebemma/Contratrain_lncRNA_analyses . For clarity and ease , I added them to this repo as well
 
 ## Load functions and libraries
 
