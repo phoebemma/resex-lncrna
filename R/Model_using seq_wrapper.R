@@ -109,7 +109,7 @@ training_model_all<- seq_wrapper(fitting_fun = glmmTMB::glmmTMB,
 #Volume_dependent model lncs alone
 vol_model_lncRNAs<- seq_wrapper(fitting_fun = glmmTMB::glmmTMB,
                             arguments = args_3,
-                            data = lncRNAs,
+                            data = lncRNAS,
                             metadata = ct_metadata,
                             samplename = "seq_sample_id",
                             summary_fun = sum_fun,
@@ -119,7 +119,7 @@ vol_model_lncRNAs<- seq_wrapper(fitting_fun = glmmTMB::glmmTMB,
                             #subset = NULL,
                             cores = ncores)
 
-saveRDS(vol_model_lncRNAs, file = "./data/models/vol_model_lncRNAs.RDS")
+#saveRDS(vol_model_lncRNAs, file = "./data/models/vol_model_lncRNAs.RDS")
 
 
 
@@ -129,7 +129,7 @@ saveRDS(vol_model_lncRNAs, file = "./data/models/vol_model_lncRNAs.RDS")
 
 training_model_lncRNA<- seq_wrapper(fitting_fun = glmmTMB::glmmTMB,
                                  arguments = args_4,
-                                 data = lncRNAs,
+                                 data = lncRNAS,
                                  metadata = ct_metadata,
                                  samplename = "seq_sample_id",
                                  summary_fun = sum_fun,
@@ -140,4 +140,4 @@ training_model_lncRNA<- seq_wrapper(fitting_fun = glmmTMB::glmmTMB,
                                  cores = ncores)
 
 
-saveRDS(training_model_lncRNA, file = "./data/models/training_model_lncRNA.RDS")
+#saveRDS(training_model_lncRNA, file = "./data/models/training_model_lncRNA.RDS")
