@@ -8,15 +8,13 @@ bibliography: Manuscript/My_Library.bib
 
 ## Abstract
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
-
 ## Introduction
 
 The skeletal muscle is important for physical health and vitality and responds to both use and disuse by hypertrophying and loss of muscle strength and mass respectively @lim. It adapts to physical activty or inactivity. It is therefore of necessity that increasing research is focused on exploring and understanding mehanisms through which the skeletal muscle can contribute to improved human health. Progressive resistance exercise training (PRET); a type of exercise where the skeletal muscle is exercised against progressively increased types of resistance @liu such as free weights , is the most potent non-pharmacological method of stimulating muscle hypertrophy and countering the loss in muscle strength and mass @lim.
 
 Several studies have explored the expression of genes in response to PRET to determine which mRNAs are differentially expressed and thus the mechanisms through which PRET elicits the beneficial effects i t is reputed to have.
 
-Long non-coding RNAs (lncRNAs) are said to regulate gene expression and are poorly annotated functionally. As regards PRET, we deem it important to explore the deferentially expressed lncRNAs and the protein coding genes coexpressed with them, hoping to contribute to the body of knowledge about lncRNAs and their functions.
+Long non-coding RNAs (lncRNAs) are said to regulate gene expression and are poorly annotated functionally. As regards PRET, we deem it important to explore the deferentially expressed lncRNAs and the protein coding genes coexpressed with them, hoping to contribute to the body of knowledge about lncRNAs and their functions especially as regards PRET .
 
 ```{r}
 #| echo: false
@@ -29,11 +27,7 @@ source("R/Trainome_functions.R")
 
 ```
 
-You can add options to executable code like this
-
 ```{r}
 #| echo: false
 2 * 2
 ```
-
-The `echo: false` option disables the printing of code (only output is displayed).
