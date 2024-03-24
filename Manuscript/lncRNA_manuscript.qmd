@@ -4,21 +4,38 @@ format: docx
 editor: visual
 csl: science.csl
 bibliography: My_Library.bib
+target journal : sports medicine open:https://sportsmedicine-open.springeropen.com/
 ---
 
 ## Abstract
 
-## Introduction
+## Background
 
-The skeletal muscle is important for physical health and vitality and responds to both use and disuse by hypertrophying and loss of muscle strength and mass respectively @limEvidenceBasedNarrativeReview2022a . It adapts to physical activty (RE) or inactivity by hypertropying or muscle loss respectively . It is therefore of necessity that increasing research is focused on exploring and understanding mehanisms through which the skeletal muscle can contribute to improved human health. Progressive resistance exercise training (PRET); a type of exercise where the skeletal muscle is exercised against progressively increased types of resistance @liu2009 such as free weights , is the most potent non-pharmacological method of stimulating muscle hypertrophy and countering the loss in muscle strength and mass @limEvidenceBasedNarrativeReview2022a
+Long non-coding RNA (lncRNA) genes play regulatory roles in both health and diseases @bonilauri2020 but most publicly available research are focused on their roles in diseases, especially cancers, almost leaving the impression that the regulatory roles ascribed to lncRNAs are only disease related. It is thus important to also investigate their functional roles in health promoting activities like exercises.
+
+Numerous studies have reported the gene expression patterns following resistance exercise but how these patterns are regulated is poorly understood. Since lncRNAs are said to play regulatory roles, it is thus pertinent to understand the lncRNAs that play the regulatory roles with the aim of not just understanding how they play the roles, but also understand how to optimise the benefits accruable from PRET
+
+Progressive resistance exercise training (PRET); a type of exercise where the skeletal muscle is exercised against progressively increased types of resistance @liu2009 such as free weights , is the most potent non-pharmacological method of stimulating muscle hypertrophy and countering the loss in muscle strength and mass @limEvidenceBasedNarrativeReview2022a., Factors internal to an individual are the main regulators of the benefits of RE such as muscle hypertrophy @limEvidenceBasedNarrativeReview2022a . Such internal factors include ribosome biogenesis, transcriptome profile and responses etc @limEvidenceBasedNarrativeReview2022a. There is a dose dependent relationship between PRET volume and its outcomes @hammarstromBenefitsHigherResistancetraining2020. It is thus necessary to also check if this also agrees with lncRNAs
+
+The skeletal muscle is important for physical health and vitality and responds to both use and disuse by hypertrophying and loss of muscle strength and mass respectively @limEvidenceBasedNarrativeReview2022a . It adapts to physical activty (RE) or inactivity by hypertropying or muscle loss respectively . It is therefore of necessity that increasing research is focused on exploring and understanding mehanisms through which the skeletal muscle can contribute to improved human health.
 
 Several studies have explored the expression of genes in response to PRET to determine which mRNAs are differentially expressed and thus the mechanisms through which PRET elicits the beneficial effects i t is reputed to have. Almost all the published literature available on functions of lncRNA are related to their roles in disease conditions, most cancers. This research is exploring the role of these groups of genes in health promotion,vis-a-vis resistance exercise
 
 . Long non-coding RNAs aee defined as non-coding RNAs of more than 200 nucleotides length. quite little is known about the majority of lncs @desanctis2021 . Long non-coding RNAs (lncRNAs) are said to regulate cellular physiology and function @oo2022 , gene expression @statello2021 and are poorly annotated functionally. Diverse research suggest different lncRNAs play divese functional roles @bridges2021 such as in the cell such as cell cycle regulators @kitagawa2013 , differentiation @delás2017 and in metabolism @sirey2019 As regards PRET, we deem it important to explore the deferentially expressed lncRNAs and the protein coding genes coexpressed with them, hoping to contribute to the body of knowledge about lncRNAs and their functions especially as regards PRET .
 
-We hope to identify lncRNAs that are differentially expressed based on exercise conditions, ie between the trained and untrained and between volumes among the trained. This should help us characterise the impact of lncs in PRET conditions. Since the lncs are reported to affect cellular functions of physiological relevance @statello2021, it is perhaps logical to posit that it would be influenced by PRET in humans
+This study aims to identify lncRNAs that are differentially expressed based on exercise conditions, ie between the trained and untrained and between volumes among the trained. This should help characterise the impact of lncs in PRET conditions. Since the lncs are reported to affect cellular functions of physiological relevance @statello2021, it is perhaps logical to posit that it would be influenced by PRET in humans
 
 Identify protein-coding genes that show the same expression pattern with the DElncS
+
+Most lncRNAs are not functionally annotated. This work hopes to contribute towards elucidating the functional roles of lncRNAs.
+
+some lncs regulate the process of muscle regeneration @sweta2019
+
+lncs have shown different expression patterns following different exercise training programs @bonilauri2020
+
+## Methods
+
+RNA sequence analyses from vastus lateralis muscle biopsies of 24 individuals aged ............ who perfomred PRET as described by Hamarsland et al. Changes in lncRNA gene expression that occur with PRET was analysed based on volume, and training or the absence of it
 
 ```         
 ```
