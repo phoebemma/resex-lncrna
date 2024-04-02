@@ -7,6 +7,45 @@ ncores <- parallel::detectCores()
 
 
 
+
+#Function to extract the model evaluations into one dataframe
+
+
+
+model_eval <-  function(x){ 
+   bind_rows(x$model_evaluations) %>%
+    mutate(target = names(x$model_evaluations))
+  
+}
+  
+ 
+#Function to extract model summary. Takes s input the model file and the number of coefficients
+model_sum <- function(x, y){
+  bind_rows(x$model_summarises) %>%
+       mutate(target = rep(names(x$model_summarises), each = y))%>%
+       subset(!coef == "(Intercept)") %>%
+       mutate(adj.p = p.adjust(Pr...z.., method = "fdr"),
+              log2fc = Estimate/log(2),
+              
+              fcthreshold = if_else(abs(log2fc) > 0.5, "s", "ns"))
+}
+
+
+
+
+#Function to put the model summaries and evaluation in one dataframe
+#Takes as input the model summary and model evaluation dataframes
+
+filt_model_parameters <- function(x, y){
+  inner_join(x, y, by = "target") %>%
+    dplyr::filter(Pr...z.. <= 0.05 & fcthreshold == "s"  & pval.disp >= 0.05 
+                  & pval.unif >= 0.05  )
+  
+}
+ 
+
+
+
 #The plot_volcano function accepts as input the results of the model summary and evaluation
 #And the string with which to name the volcano plot
 
