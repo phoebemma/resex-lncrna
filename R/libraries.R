@@ -1,6 +1,6 @@
 #if (!require("BiocManager", quietly = TRUE))
- # install.packages("Homo.sapiens")
-#BiocManager::install("annotables");
+  install.packages("BiocManager")
+BiocManager::install("CEMiTool");
 #source("https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/GeneAnnotation/installAnRichment.R");
 #installAnRichment();
 #install.packages("ggchicklet", repos = "https://cinc.rud.is")
@@ -61,4 +61,5 @@ library(hrbrthemes)
 library(seqwrap)
 library(ggrepel)
 library(emmeans)
+library(CEMiTool)
 
