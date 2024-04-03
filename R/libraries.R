@@ -1,6 +1,6 @@
 #if (!require("BiocManager", quietly = TRUE))
-  install.packages("BiocManager")
-BiocManager::install("CEMiTool");
+#   install.packages("BiocManager")
+# BiocManager::install("CEMiTool");
 #source("https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/GeneAnnotation/installAnRichment.R");
 #installAnRichment();
 #install.packages("ggchicklet", repos = "https://cinc.rud.is")
@@ -62,4 +62,5 @@ library(seqwrap)
 library(ggrepel)
 library(emmeans)
 library(CEMiTool)
+library(gridExtra)
 
