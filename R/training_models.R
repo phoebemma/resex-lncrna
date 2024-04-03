@@ -5,25 +5,66 @@ source("R/Trainome_functions.R")
 
 
 #Load the raw model
-Vol_all <- readRDS("data/models/training_model_all.RDS") 
+train_all <- readRDS("data/models/training_model_all.RDS") 
 
 
 
-
-model_eval <- model_eval(Vol_all)
+#get model evaluation
+mod_eval <- model_eval(train_all)
 
 #get the model summaries
-model_sum <- model_sum(Vol_all, 7)
+mod_sum <- model_sum(train_all, 7)
 
 
 #merge the model summaries and model evaluation into one dataframe
 
 
-Vol__all <- filt_model_parameters(model_sum, model_eval)
+train_all <- filt_model_parameters(mod_sum, mod_eval) %>%
+  dplyr::filter(coef != "efflibsize")
+
+unique(train_all$coef)
 
 
 #save the filtered coefs 
-#saveRDS(Vol_all, file = "./data/models/Filtered_coefs/Vol_model_all_coefs.RDS")
+#saveRDS(train_all, file = "./data/models/Filtered_coefs/training_model_all.RDS")
+
+
+
+
+#Load the training model nrmalised with lncs alone
+
+train_lncs <- readRDS("data/models/training_model_lncRNA.RDS")
+
+
+#get model evaluation for lnsc
+mod_eval_lncs <- model_eval(train_lncs)
+
+#get model summaries
+mod_sum_lncs <- model_sum(train_lncs, 7)
+
+
+train_lncs <- filt_model_parameters(mod_sum_lncs, mod_eval_lncs) %>%
+  dplyr::filter(coef != "efflibsize_lncs")
+
+#saveRDS(train_lncs, file = "./data/models/Filtered_coefs/training_model_lncs.RDS")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
