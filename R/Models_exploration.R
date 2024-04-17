@@ -173,3 +173,89 @@ dev.off()
 
 
 
+
+
+#Load the lncRNA dataset
+
+lncs <- readRDS("data/lncRNA_genes.RDS")
+
+#Extrat the DE lncs at mid exercise for set 6
+
+lncs_of_int <- lncs[lncs$gene_name %in% Vol_lncs_set3_t4$target,]
+
+
+
+
+
+# lncs_ <- as.matrix(lncs_of_int[, -1])
+# rownames(lncs_) <- lncs_of_int$gene_name
+# 
+# lncs_ <- as.data.frame(lncs_)
+# 
+# cem <- cemitool(lncs_)
+
+
+
+#Load protein cpding genes
+prot_genes <- readRDS("data/protein_coding_genes.RDS")
+
+
+
+#Correlation test
+cor_results_j <-list()
+cor_results_i <- list()
+
+for (i in 1:length(lncs_of_int$gene_name)){
+  
+  
+  for (j in 1:length(prot_genes$gene_name)){
+    
+    lncRNA_Vector <- as.numeric(lncs_of_int[i,-1])
+    protein_coding_vector <- as.numeric(prot_genes[j,-1 ])
+    
+    cor_test_result <- cor.test(lncRNA_Vector, protein_coding_vector)
+    # cor_results <- do.call(rbind.data.frame(cor_test_result))
+    
+    cor_results_j[[j]] <- data.frame(
+      lncRNA = as.character(lncs_of_int[i,1]),
+      protein_coding_gene = as.character(prot_genes[j, 1]),
+      correlation_coefficient = cor_test_result$estimate,
+      p_value = cor_test_result$p.value, 
+      row.names = NULL)
+    
+    
+    
+  } 
+  
+  cor_results_i[[i]] <-  bind_rows(cor_results_j)
+  
+}
+
+correlation_results <- bind_rows(cor_results_i) %>%
+#ggplot(aes(correlation_coefficient)) + geom_histogram()
+dplyr::filter(p_value <= 0.05) %>%
+  round_df(3)
+
+
+
+
+#check the perform gene ontology  using enrichGO
+
+ego_df <- enrichGO(gene = correlation_results$protein_coding_gene,
+                  # universe = unique(prot_genes$gene_name),
+                   keyType = "SYMBOL",
+                   OrgDb = org.Hs.eg.db, 
+                   ont = "BP", 
+                   pAdjustMethod = "BH", 
+                   qvalueCutoff = 0.05, 
+                   readable = T)
+
+
+
+## Output results from GO analysis to a table
+cluster_summary <- data.frame(ego_df)
+
+dotplot(ego_df, showCategory = 15,
+        
+        font.size = 8, title = "15 top ranked biological processes in coexpressed protein-coding genes set6 participants at t4") +
+  theme(axis.text = element_text(size = 15), axis.text.y = element_text(size = 15), axis.title.x = element_text(size = 20))
