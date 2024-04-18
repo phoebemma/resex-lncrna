@@ -19,8 +19,6 @@ The skeletal muscle is important for physical health and vitality. It responds t
 
 Progressive resistance exercise training (PRET); a type of exercise where the skeletal muscle is exercised against progressively increased types of resistance @liu2009 such as free weights , is the most potent non-pharmacological method of stimulating muscle hypertrophy and countering the loss in muscle strength and mass @limEvidenceBasedNarrativeReview2022a., Factors internal to an individual are the main regulators of the benefits of RE such as muscle hypertrophy @limEvidenceBasedNarrativeReview2022a . Such internal factors include ribosome biogenesis, transcriptome profile and responses, RE-induced muscle damage, metabolites etc @limEvidenceBasedNarrativeReview2022a, @hammarström2022 There is a dose dependent relationship between PRET volume and its outcomes @hammarstromBenefitsHigherResistancetraining2020. It is thus necessary to also check if this also agrees with lncRNAs
 
-As regards PRET, we deem it important to explore the deferentially expressed lncRNAs and the protein coding genes coexpressed with them, hoping to contribute to the body of knowledge about lncRNAs and their functions especially as regards PRET .
-
 Numerous studies have reported the gene expression patterns following resistance exercise but how these patterns are regulated is poorly understood. Since lncRNAs are said to play regulatory roles, it is thus pertinent to understand the lncRNAs that play the regulatory roles with the aim of not just understanding how they play the roles, but also understand how to optimise the benefits accruable from PRET
 
 ```{r}
@@ -38,8 +36,6 @@ DiagrammeR::grViz("digraph {
   }",
   height = 500)
 ```
-
-Several studies have explored the expression of genes in response to PRET to determine which mRNAs are differentially expressed and thus the mechanisms through which PRET elicits the beneficial effects i t is reputed to have. Almost all the published literature available on functions of lncRNA are related to their roles in disease conditions, most cancers.
 
 This study aims to identify lncRNAs that are differentially expressed based on exercise conditions, ie between the trained and untrained and between volumes among the trained. This should help characterise the impact of lncs in PRET conditions. Since the lncs are reported to affect cellular functions of physiological relevance @statello2021, it is perhaps logical to posit that it would be influenced by PRET in humans. It will enhance the current knolwegde about the responses to PRET and how these can be optimised for individual participants
 
