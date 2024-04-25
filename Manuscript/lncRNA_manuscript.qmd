@@ -11,7 +11,7 @@ target journal : sports medicine open:https://sportsmedicine-open.springeropen.c
 
 ## Background
 
-Long non-coding RNAs (lncRNAs) are non-protein-coding RNAs of more than 200 nucleotides in length. Over 240,000 lncs in humans have been curated @10.1093/nar/gky960 . Not much is known about they majority of this special group of RNAs hence its poor functional annotation, but, they are generally believed to regulate regulate cellular physiology and function @oo2022, @bridges2021 as well as the expression of protein-coding genes @statello2021. Despite lncRNAs low levels of expression and sequence conservation @mattick2023 , their expressions are highly tissue and condition-specific @statello2021, @bonilauri2020. Some lncRNAs have been reported to play roles cell cycle regulation @kitagawa2013, differentiation @delás2017, metabolism @sirey2019, and muscle regeneration @sweta2019
+Long non-coding RNAs (lncRNAs) are non-protein-coding RNAs of more than 200 nucleotides in length. Over 240,000 lncs in humans have been curated @10.1093/nar/gky960 . Not much is known about they majority of this special group of RNAs hence its poor functional annotation, but, they are generally believed to regulate regulate different aspects of cellular physiology and function @oo2022, @bridges2021 as well as the expression of protein-coding genes @statello2021 @doi:10.1177/2472630318780639 . Despite lncRNAs low levels of expression and sequence conservation @mattick2023 , their expressions are highly tissue and condition-specific @statello2021, @bonilauri2020. Some lncRNAs have been reported to play roles cell cycle regulation @kitagawa2013, differentiation @delás2017, metabolism @sirey2019, and muscle regeneration @sweta2019
 
 There is currently a level of uncertainty about the mechanisms of actions of lncs. Figuring out lncs that are differentially expressed in a given condition could thus be the first step in detailed studies towards elucidating their mechanisms of action. Most publicly available research on lncs are focused on their roles in diseases, especially cancers, . Relatively much less like @bonilauri2020 are available on their roles in health promotion. It might thus be fair to investigate the possible functional roles of lncs in health promoting activities like resistance exercise training. This research is exploring the role of these groups of genes in health promotion,vis-a-vis resistance exercise
 
@@ -20,6 +20,21 @@ The skeletal muscle is important for physical health and vitality. It responds t
 Progressive resistance exercise training (PRET); a type of exercise where the skeletal muscle is exercised against progressively increased types of resistance @liu2009 such as free weights , is the most potent non-pharmacological method of stimulating muscle hypertrophy and countering the loss in muscle strength and mass @limEvidenceBasedNarrativeReview2022a., Factors internal to an individual are the main regulators of the benefits of RE such as muscle hypertrophy @limEvidenceBasedNarrativeReview2022a . Such internal factors include ribosome biogenesis, transcriptome profile and responses, RE-induced muscle damage, metabolites etc @limEvidenceBasedNarrativeReview2022a, @hammarström2022 There is a dose dependent relationship between PRET volume and its outcomes @hammarstromBenefitsHigherResistancetraining2020. It is thus necessary to also check if this also agrees with lncRNAs
 
 Numerous studies have reported the gene expression patterns following resistance exercise but how these patterns are regulated is poorly understood. Since lncRNAs are said to play regulatory roles, it is thus pertinent to understand the lncRNAs that play the regulatory roles with the aim of not just understanding how they play the roles, but also understand how to optimise the benefits accruable from PRET
+
+```{}
+```
+
+This study aims to identify lncRNAs that are differentially expressed based on exercise conditions, ie between the trained and untrained and between volumes among the trained. This should help characterise the impact of lncs in PRET conditions. Since the lncs are reported to affect cellular functions of physiological relevance @statello2021, it is perhaps logical to posit that it would be influenced by PRET in humans. It will enhance the current knolwegde about the responses to PRET and how these can be optimised for individual participants
+
+Most lncRNAs are not functionally annotated. This work hopes to contribute towards elucidating the functional roles of lncRNAs.
+
+## Methods
+
+Study design , sample preparation and sequencing were done as described by Hamarsland et al (in_view). FastQc (v0.11.5) was used to check the quality of the FastQ files . Reads mapped to human genome.... were counted using RSEM. Data extraction and statistical analyses were done using RStudio (2023.06.2 Build 561)
+
+## Models and visualization
+
+To compare the influence of the effective library size of all the genes, versus only those annotated as lncRNAs, two types of negative binomial regression models were built, one normalizing using lncRNAs alone, and another using the full genes counts. All genes annotated as lncRNA by the Ensemble database in BioMart were extracted
 
 ```{r}
 DiagrammeR::grViz("digraph {
@@ -32,18 +47,11 @@ DiagrammeR::grViz("digraph {
   rec4 [label = 'Differential lncRNA expression analyses using GLMM']
   
   # edge definitions with the node IDs
-  rec1 -> rec2 -> rec3 -> rec4
+  rec1 -> rec2 -> rec3 -> rec4 rec4 -> rec3
   }",
   height = 500)
+
 ```
-
-This study aims to identify lncRNAs that are differentially expressed based on exercise conditions, ie between the trained and untrained and between volumes among the trained. This should help characterise the impact of lncs in PRET conditions. Since the lncs are reported to affect cellular functions of physiological relevance @statello2021, it is perhaps logical to posit that it would be influenced by PRET in humans. It will enhance the current knolwegde about the responses to PRET and how these can be optimised for individual participants
-
-Most lncRNAs are not functionally annotated. This work hopes to contribute towards elucidating the functional roles of lncRNAs.
-
-## Methods
-
-RNA sequence analyses from vastus lateralis muscle biopsies of 24 individuals aged ............ who perfomred PRET as described by Hamarsland et al. Changes in lncRNA gene expression that occur with PRET was analysed based on volume, and training or the absence of it
 
 ```         
 ```
