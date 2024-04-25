@@ -64,6 +64,11 @@ t4_train_all_plot <- plot_volcano(t4_train_all, "DE lncRNAs post exercise when n
 
 
 
+
+#plot t4 for both volume and training model
+grid.arrange(t4_vol_all_plot, t4_train_all_plot, ncol = 2)
+
+
 t4_train_lncs <- train_lncs %>%
   dplyr::filter(coef == "timet4")
 
@@ -213,7 +218,7 @@ for (i in 1:length(lncs_of_int$gene_name)){
     lncRNA_Vector <- as.numeric(lncs_of_int[i,-1])
     protein_coding_vector <- as.numeric(prot_genes[j,-1 ])
     
-    cor_test_result <- cor.test(lncRNA_Vector, protein_coding_vector)
+    cor_test_result <- cor.test(lncRNA_Vector, protein_coding_vector, method = "spearman")
     # cor_results <- do.call(rbind.data.frame(cor_test_result))
     
     cor_results_j[[j]] <- data.frame(
@@ -238,11 +243,14 @@ dplyr::filter(p_value <= 0.05) %>%
 
 
 
+x <- prot_genes[prot_genes$gene_name %in% correlation_results$protein_coding_gene,]
+
+unique(t3_df$gene_name)
 
 #check the perform gene ontology  using enrichGO
 
-ego_df <- enrichGO(gene = correlation_results$protein_coding_gene,
-                  # universe = unique(prot_genes$gene_name),
+ego_df <- enrichGO(gene = x$gene_name,
+                   #universe = unique(prot_genes$gene_name),
                    keyType = "SYMBOL",
                    OrgDb = org.Hs.eg.db, 
                    ont = "BP", 
