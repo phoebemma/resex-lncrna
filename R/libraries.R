@@ -1,10 +1,11 @@
-#if (!require("BiocManager", quietly = TRUE))
-#   install.packages("BiocManager")
-# BiocManager::install("CEMiTool");
+# if (!require("BiocManager", quietly = TRUE))
+#    install.packages("BiocManager")
+#  BiocManager::install("equatiomatic");
 #source("https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/GeneAnnotation/installAnRichment.R");
 #installAnRichment();
 #install.packages("ggchicklet", repos = "https://cinc.rud.is")
 
+#webshot::install_phantomjs()
 
 library(tidyverse)
 library(dplyr)
@@ -32,8 +33,8 @@ library(statmod)
 #library(MOFA2)
 library(factoextra)
 library(pheatmap)
-#library(apeglm)
-#library(EnhancedVolcano)
+library(equatiomatic)
+
 library(umap)
 library(vcfR)
 library(adegenet)

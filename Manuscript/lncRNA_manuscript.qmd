@@ -1,11 +1,13 @@
 ---
 title: "Effects of progressive resistance training on the expression of long non-coding RNAs in skeletal muscle of young adults"
 format: docx
+output:
+  bookdown::word_document2: default
+  bookdown::pdf_documents: default
 editor: visual
 csl: science.csl
 bibliography: My_Library.bib
 target journal : sports medicine open:https://sportsmedicine-open.springeropen.com/
-always_allow_html: yes
 ---
 
 ## Abstract
@@ -22,20 +24,19 @@ Numerous studies have reported the gene expression patterns following PRET, but 
 
 This study aims to identify lncRNAs that are differentially expressed following PRET based on exercise conditions, ie between the trained and untrained and between volumes among the trained. It will enhance the current knowledge about the responses to PRET and how these can be optimised and personalised for individual participants
 
-```{}
-```
-
 ## Methods
 
-Study design , sample preparation and sequencing were done as described by Hamarsland et al (in_view). FastQc (v0.11.5) was used to check the quality of the FastQ files . Reads mapping to human genome...(GRCh 38) were counted using RSEM (v.1.3.3-foss-2019b). Data extraction and statistical analyses were done using RStudio (2023.06.2 Build 561)
+### Data and Data analyses
 
-## Models and visualization
+Study design , sample preparation and RNA sequencing were done as described by Hamarsland et al (in_view). FastQc (v0.11.5) was used to check the quality of the FastQ files . Reads mapping to human genome(GRCh 38) with gencode v40 primary assembly annotation were counted using RSEM (v.1.3.3-foss-2019b). Data extraction and statistical analyses were done using RStudio (2023.06.2 Build 561) . A diagram showing the overview of data analyses steps is shown in Figure 1
+
+### Models and visualization
 
 To compare the influence of the effective library size of all the genes, versus only those annotated as lncRNAs, two types of negative binomial regression models were built using Seq_Wrapper, an R package developed in-house, one normalized using lncRNAs alone, and another using the full genes counts. All genes annotated as lncRNA by the Ensemble database in BioMart were extracted
 
 Two models were built, one to determine the effect of training by grouping the participants' legs into trained and untrained. The other model was designed to investigate the effect of the different exercise conditions , that is set 6, set 3 and set 0. lncRNAs with p values less than or below 0.05, and log fold 2 change above 0.5 were extracted
 
-```{r}
+```{r Steps_analyses, fig.cap="Flow diagram sowing steps in analysis", echo=FALSE}
 formula1 = y ~  efflibsize + condition*time +(1|participant)          
 
 DiagrammeR::grViz("digraph {
@@ -46,7 +47,7 @@ DiagrammeR::grViz("digraph {
   rec2 [label = 'Mapping to Human genome (GRCh 38)']
   rec3 [label =  'Read Counts (RSEM)']
   rec4 [label = 'Differential lncRNA expression analyses using GLMM']
-  rec5 [label = print(formula1)]
+
   
   # edge definitions with the node IDs
   rec1 -> rec2 -> rec3 -> rec4 -> rec5
@@ -60,3 +61,5 @@ DiagrammeR::grViz("digraph {
 
 ```         
 ```
+
+## Results
