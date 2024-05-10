@@ -49,8 +49,11 @@ ct_metadata %>%
 dev.off()
 
 
+#Load the RSEM TPM counts
 
+TPM <- extract_rsem_gene_counts("data/Contratrain_rsem_genes/")
 
+#saveRDS(TPM, file = "data/Ct_genes_TPM.RDS")
 
 # download the contratrain gene counts
 download_ome(download = "ct_gene_rsem")
