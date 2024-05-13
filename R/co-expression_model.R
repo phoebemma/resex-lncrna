@@ -41,3 +41,67 @@ unique(train_model$coef)
 genes_TPM <- readRDS("data/protein_coding_genes_TPM.RDS")
 
 
+#Load the full gene counts in TPM
+full_df <- readRDS("data/Ct_genes_TPM.RDS")
+
+
+
+# Let us look at the DEs between the trained and untrained at post exercise
+
+trained_t4 <- train_model %>%
+  dplyr::filter(coef == "training_statustrained:timet4")
+
+
+
+#Visualize it
+plot_volcano(trained_t4, "t")
+
+
+
+# extract the DEs from the full gene counts
+
+
+lncs_of_int <- full_df[full_df$gene_name %in% trained_t4$target,]
+
+
+
+#extract the metadata and merge to the lncs of interest
+met_df <- lncs_of_int %>%
+  pivot_longer(cols = -("gene_name"),
+               names_to = "seq_sample_id",
+               values_to = "counts") %>%
+  inner_join(ct_metadata, by = "seq_sample_id") %>%
+  #rename the gene_name to lncRNA to avoid mixing up with the mRNA genenames
+  rename(lncRNA = gene_name)
+
+
+
+
+
+#initialising the arguments
+args<- list(formula = y ~  lncRNA + condition*time +(1|participant),
+            family = glmmTMB::nbinom2())
+
+
+# Build the correlation model
+
+cor_model <- seq_wrapper(fitting_fun = glmmTMB::glmmTMB,
+                         arguments = args,
+                         data = genes_TPM,
+                         metadata = met_df,
+                         samplename = "seq_sample_id",
+                         summary_fun = sum_fun,
+                         eval_fun = eval_mod,
+                         exported = list(),
+                         #return_models = F,
+                         #subset = 1:550,
+                         cores = ncores)
+
+
+
+
+
+
+
+
+

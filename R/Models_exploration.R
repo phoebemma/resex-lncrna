@@ -5,6 +5,8 @@ source("R/libraries.R")
 source("R/Trainome_functions.R")
 
 
+
+ct_metadata <- readRDS("data/contratrain_metadata.RDS")
 #Load the four different models
 
 #The volume model normalised with all genes
@@ -182,8 +184,9 @@ dev.off()
 
 #Load the lncRNA dataset
 
-lncs <- readRDS("data/lncRNA_genes.RDS")
+#lncs <- readRDS("data/lncRNA_genes.RDS")
 
+lncs <-readRDS("data/Ct_genes_TPM.RDS")
 #Extrat the DE lncs at mid exercise for set 6
 
 lncs_of_int <- lncs[lncs$gene_name %in% Vol_lncs_set3_t4$target,]
@@ -204,6 +207,98 @@ lncs_of_int <- lncs[lncs$gene_name %in% Vol_lncs_set3_t4$target,]
 #Load protein cpding genes
 prot_genes <- readRDS("data/protein_coding_genes.RDS")
 
+#Load the proteins of interest from the TPM data
+
+mRNAs <- lncs[lncs$gene_name %in% prot_genes$gene_name, ]
+
+
+#saveRDS(mRNAs, file = "data/protein_coding_genes_TPM.RDS")
+
+
+
+
+#extract the metadata and merge to the lncs of interest
+met_df <- lncs_of_int %>%
+  pivot_longer(cols = -("gene_name"),
+               names_to = "seq_sample_id",
+               values_to = "counts") %>%
+  inner_join(ct_metadata, by = "seq_sample_id") %>%
+  #rename the gene_name to lncRNA to avoid mixing up with the mRNA genenames
+   rename(lncRNA = gene_name)
+
+
+
+#Model building to check for coexpression between the lncs and mRNA genes
+
+#initialising the arguments
+args<- list(formula = y ~  lncRNA + condition*time +(1|participant),
+            family = glmmTMB::nbinom2())
+
+
+# Build the correlation model
+
+cor_model <- seq_wrapper(fitting_fun = glmmTMB::glmmTMB,
+                         arguments = args,
+                         data = mRNAs,
+                         metadata = met_df,
+                         samplename = "seq_sample_id",
+                         summary_fun = sum_fun,
+                         eval_fun = eval_mod,
+                         exported = list(),
+                         #return_models = F,
+                         subset = 1:550,
+                         cores = ncores)
+
+
+
+
+
+
+#get the model evaluation
+mod_eval <-  model_eval(cor_model)
+
+
+unique(cor_model$model_summarises)
+
+
+mod_sum <- model_sum(cor_model, 43)
+
+
+
+
+
+
+
+#merge the model summaries and model evaluation into one dataframe
+cor_model <- filt_model_parameters(mod_eval, mod_sum) 
+
+unique(cor_model$coef)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #Correlation test
@@ -213,17 +308,17 @@ cor_results_i <- list()
 for (i in 1:length(lncs_of_int$gene_name)){
   
   
-  for (j in 1:length(prot_genes$gene_name)){
+  for (j in 1:length(mRNAs$gene_name)){
     
     lncRNA_Vector <- as.numeric(lncs_of_int[i,-1])
-    protein_coding_vector <- as.numeric(prot_genes[j,-1 ])
+    protein_coding_vector <- as.numeric(mRNAs[j,-1 ])
     
     cor_test_result <- cor.test(lncRNA_Vector, protein_coding_vector, method = "spearman")
     # cor_results <- do.call(rbind.data.frame(cor_test_result))
     
     cor_results_j[[j]] <- data.frame(
       lncRNA = as.character(lncs_of_int[i,1]),
-      protein_coding_gene = as.character(prot_genes[j, 1]),
+      protein_coding_gene = as.character(mRNAs[j, 1]),
       correlation_coefficient = cor_test_result$estimate,
       p_value = cor_test_result$p.value, 
       row.names = NULL)
@@ -243,9 +338,7 @@ dplyr::filter(p_value <= 0.05) %>%
 
 
 
-x <- prot_genes[prot_genes$gene_name %in% correlation_results$protein_coding_gene,]
 
-unique(t3_df$gene_name)
 
 #check the perform gene ontology  using enrichGO
 

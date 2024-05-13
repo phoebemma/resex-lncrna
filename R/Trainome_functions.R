@@ -294,7 +294,7 @@ extract_lncRNAs <- function(folder){
 #function to read Rsem .gene.results files
 read_Rsem_genes <- function(file){
   df <- readr::read_delim(file)
-  df <- df %>% dplyr::select(gene_id, length, effective_length, expected_count)
+  df <- df %>% dplyr::select(gene_id, length, TPM, effective_length, expected_count)
   return(df)
 }
 
@@ -331,6 +331,7 @@ extract_rsem_isoform_counts <- function(folder){
 
 
 
+#Extracts the TPM 
 
 extract_rsem_gene_counts <- function(folder){
   
@@ -342,7 +343,7 @@ extract_rsem_gene_counts <- function(folder){
     
     genes[[i]] <- read_Rsem_genes(paste0(folder,"/", files[i])) %>% 
       mutate(file_id = gsub(".genes.results", "", files[i])) %>% ## This removes the file number
-      dplyr::select(gene_id, file_id, length, effective_length, expected_count)
+      dplyr::select(gene_id, file_id, length, effective_length, expected_count, TPM)
     
     
     
@@ -351,7 +352,7 @@ extract_rsem_gene_counts <- function(folder){
   comd.df <- data.table::rbindlist(genes)
 
   
-  comb.df <- data.table::dcast(comd.df, gene_id ~ file_id, value.var = "expected_count")
+  comb.df <- data.table::dcast(comd.df, gene_id ~ file_id, value.var = "TPM")
   
   return(data.frame(comb.df))
 }
