@@ -1,8 +1,9 @@
 ---
 title: "Effects of resistance exercise training on the long non-coding RNA landscape in young individuals"
-
+format: gfm
 ---
 
 
 
-## Abstract
+## Authors
+ Chidimma Phoebe Echebiri, Daniel Hammarstöm, Rafi Ahmad, Stian Ellefsen
