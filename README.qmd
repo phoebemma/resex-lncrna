@@ -7,3 +7,18 @@ format: gfm
 
 ## Authors
  Chidimma Phoebe Echebiri, Daniel Hammarstöm, Rafi Ahmad, Stian Ellefsen
+
+## Repository organisation
+`/Manuscript`
+
+
+- My Library.bib 
+- lncRNA-manuscript.qmd
+- science.csl
+
+
+`/R`
+
+- Contains the different scrpts used in analyses. From data extraction to final step
+
+`/README_files/libs`
