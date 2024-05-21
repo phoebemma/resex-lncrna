@@ -15,8 +15,8 @@ Chidimma Phoebe Echebiri, Daniel Hammarstï¿½m, Rafi Ahmad, Stian Ellefsen
 
 `/R`
 
-- Contains the different scrpts used in analyses. From data extraction
-  to final step
+- Contains the different scrpts used in analyses. From data extraction to final step
+
 To reproduce the analyses, the scripts should be run in the following order
 
-1. ´contratrain_data_extraction.R´. This downloads the contratrain data, extracts and preprocesses the relevant data
+1. ´/contratrain_data_extraction.R´. This downloads the contratrain data, extracts and preprocesses the relevant data
