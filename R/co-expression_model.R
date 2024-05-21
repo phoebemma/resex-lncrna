@@ -79,7 +79,7 @@ met_df <- lncs_of_int %>%
 
 
 #initialising the arguments
-args<- list(formula = y ~  lncRNA + condition*time +(1|participant),
+args<- list(formula = y ~  lncRNA + training_status +(1|participant),
             family = glmmTMB::nbinom2())
 
 
@@ -94,7 +94,7 @@ cor_model <- seq_wrapper(fitting_fun = glmmTMB::glmmTMB,
                          eval_fun = eval_mod,
                          exported = list(),
                          #return_models = F,
-                         #subset = 1:550,
+                         subset = 1:550,
                          cores = ncores)
 
 
