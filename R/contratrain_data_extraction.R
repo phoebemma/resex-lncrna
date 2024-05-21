@@ -1,5 +1,11 @@
 #Load the needed libraries
-source("R/libraries.R")
+#source("R/libraries.R")
+
+library(dplyr)
+library(trainomeMetaData)
+library(trainomeHelper)
+
+
 
 #Load the functions most regularly used
 source("R/Trainome_functions.R")
