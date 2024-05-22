@@ -18,6 +18,7 @@ Chidimma Phoebe Echebiri, Daniel Hammarst�m, Rafi Ahmad, Stian Ellefsen
 - Contains the different scrpts used in analyses. From data extraction to final step
 
 To reproduce the analyses, the scripts should be run in the following order
+
  *uncomment the "saveRDS.." lines to save the extracted files in the locations needed for downstream analyses*
 1. `Trainome_functions.R`. This contains functions written from scripts that were repeatedly needed for all Trainome analyses on R
 
