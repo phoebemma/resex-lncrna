@@ -1,5 +1,6 @@
 #Load the needed libraries
-source("R/libraries.R")
+
+library(glmmTMB)
 
 #Load the functions most regularly used
 source("R/Trainome_functions.R")

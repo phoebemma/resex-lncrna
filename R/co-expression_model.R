@@ -1,10 +1,6 @@
 #This script is where we build a model that checks for coexpression of DE lncs
 # and mRNA (protein_coding) genes
 
-
-
-source("R/libraries.R")
-
 #Load the functions most regularly used
 source("R/Trainome_functions.R")
 
@@ -79,7 +75,7 @@ met_df <- lncs_of_int %>%
 
 
 #initialising the arguments
-args<- list(formula = y ~  lncRNA + training_status +(1|participant),
+args<- list(formula = y ~  lncRNA + time*condition +(1|participant),
             family = glmmTMB::nbinom2())
 
 
