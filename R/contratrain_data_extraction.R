@@ -4,6 +4,9 @@
 library(dplyr)
 library(trainomeMetaData)
 library(trainomeHelper)
+library(tidyverse)
+library(biomaRt)
+library(edgeR)
 
 
 
@@ -55,8 +58,8 @@ ct_metadata %>%
 dev.off()
 
 
-#Load the RSEM TPM counts
-
+#Load the RSEM TPM counts fro the contratrain raw counts
+#This will be used during gene coexpression analyses
 TPM <- extract_rsem_gene_counts("data/Contratrain_rsem_genes/")%>%
   separate(gene_id, c("gene_id", "gene_name"), sep = "_", extra = "merge") %>%
   dplyr::select(-(gene_id))
