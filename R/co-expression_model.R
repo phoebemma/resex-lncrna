@@ -1,6 +1,11 @@
 #This script is where we build a model that checks for coexpression of DE lncs
 # and mRNA (protein_coding) genes
+source("R/archived_scripts/libraries.R")
 
+library(dplyr)
+library(trainomeHelper)
+library(ggplot2)
+library(ggrepel)
 #Load the functions most regularly used
 source("R/Trainome_functions.R")
 
@@ -43,9 +48,11 @@ full_df <- readRDS("data/Ct_genes_TPM.RDS")
 
 
 # Let us look at the DEs between the trained and untrained at post exercise
+#Limiting the log fold 2 change to those above 1, or those below -1
 
 trained_t4 <- train_model %>%
-  dplyr::filter(coef == "training_statustrained:timet4")
+  dplyr::filter(coef == "training_statustrained:time3")%>%
+  dplyr::filter(log2fc >= 1 | log2fc <= -1)
 
 
 
@@ -90,7 +97,7 @@ cor_model <- seq_wrapper(fitting_fun = glmmTMB::glmmTMB,
                          eval_fun = eval_mod,
                          exported = list(),
                          #return_models = F,
-                         subset = 1:550,
+                        # subset = 1:550,
                          cores = ncores)
 
 
