@@ -81,7 +81,7 @@ vol_model_all<- seqwrap(fitting_fun = glmmTMB::glmmTMB,
                        summary_fun = sum_fun,
                        eval_fun = eval_mod,
                        exported = list(),
-                       #return_models = F,
+                       return_models = F,
                        #subset = NULL,
                        cores = ncores)
 
@@ -94,7 +94,7 @@ mod_eval <- model_eval(vol_model_all)
 
 #Model for the trained versus untrained 
 
-training_model_all<- seq_wrapper(fitting_fun = glmmTMB::glmmTMB,
+training_model_all<- seqwrap(fitting_fun = glmmTMB::glmmTMB,
                          arguments = args_2,
                          data = lncRNAS,
                          metadata = ct_metadata,
