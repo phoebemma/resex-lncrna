@@ -1,7 +1,7 @@
 #Load the needed libraries
 
 library(glmmTMB)
-
+library(seqwrap)
 #Load the functions most regularly used
 source("R/Trainome_functions.R")
 
@@ -73,7 +73,7 @@ args_4<- list(formula = y ~  efflibsize_lncs + training_status*time +(1|particip
 
 
 #Volume_dependent model
-vol_model_all<- seq_wrapper(fitting_fun = glmmTMB::glmmTMB,
+vol_model_all<- seqwrap(fitting_fun = glmmTMB::glmmTMB,
                        arguments = args,
                        data = lncRNAS,
                        metadata = ct_metadata,
@@ -85,7 +85,11 @@ vol_model_all<- seq_wrapper(fitting_fun = glmmTMB::glmmTMB,
                        #subset = NULL,
                        cores = ncores)
 
+
 #saveRDS(vol_model_all, file = "./data/models/vol_model_all.RDS")
+
+#get model evaluation
+mod_eval <- model_eval(vol_model_all)
 
 
 #Model for the trained versus untrained 
