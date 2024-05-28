@@ -3,7 +3,7 @@
 
 library(dplyr)
 library(trainomeMetaData)
-library(trainomeHelper)
+#library(trainomeHelper)
 library(tidyverse)
 library(biomaRt)
 library(edgeR)
@@ -64,6 +64,10 @@ TPM <- extract_rsem_gene_counts("data/Contratrain_rsem_genes/")%>%
   separate(gene_id, c("gene_id", "gene_name"), sep = "_", extra = "merge") %>%
   dplyr::select(-(gene_id))
  
+<<<<<<< HEAD
+=======
+##TPM[,-1] <-  round(TPM[,-1], 0)
+>>>>>>> f309c189115fd22e250bd1c5699145544dbcc456
 
 #saveRDS(TPM, file = "data/Ct_genes_TPM.RDS")
 
