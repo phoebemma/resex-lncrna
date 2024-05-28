@@ -1,5 +1,13 @@
 
-ncores <- parallel::detectCores()
+ source("R/archived_scripts/libraries.R")
+
+ 
+ 
+ 
+ 
+ 
+ 
+ ncores <- parallel::detectCores()
 
 
 
@@ -13,17 +21,17 @@ ncores <- parallel::detectCores()
 
 
 model_eval <-  function(x){ 
-   bind_rows(x$model_evaluations) %>%
-    mutate(target = names(x$model_evaluations))
+   bind_rows(x$evaluations) %>%
+    mutate(target = names(x$evaluations))
   
 }
   
  
 #Function to extract model summary. Takes s input the model file and the number of coefficients
 model_sum <- function(x, y){
-  bind_rows(x$model_summarises) %>%
-       mutate(target = rep(names(x$model_summarises), each = y))%>%
-       subset(!coef == "(Intercept)") %>%
+  bind_rows(x$summarises) %>%
+       mutate(target = rep(names(x$summarises), each = y))%>%
+       #subset(!coef == "(Intercept)") %>%
        mutate(adj.p = p.adjust(Pr...z.., method = "fdr"),
               log2fc = Estimate/log(2),
               
