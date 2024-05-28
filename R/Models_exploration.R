@@ -1,6 +1,8 @@
 # This script contains exploratory analyses of the different models
-
-
+library(dplyr)
+library(ggplot2)
+library(ggrepel)
+library(gridExtra)
 #Load the functions most regularly used
 source("R/Trainome_functions.R")
 
@@ -36,7 +38,9 @@ train_lncs <- readRDS("data/models/Filtered_coefs/training_model_lncs.RDS")
 
 #Compare DE lncs at time t4 in all 4 models
 t4_vol_all <- Vol_all %>%
-  dplyr::filter(coef == "timet4")
+  dplyr::filter(coef == "timet4") %>%
+  dplyr::filter(log2fc >= 1 | log2fc <= -1)
+
 
 
 #Plot it using the  plot_volcano function
@@ -46,7 +50,8 @@ t4_vol_all_plot <- plot_volcano(t4_vol_all, "DE lncRNAs post exercise when norma
 #Reapeat same for volume_lncs
 
 t4_vol_lncs <- Vol_lncs %>%
-  dplyr::filter(coef == "timet4")
+  dplyr::filter(coef == "timet4")%>%
+  dplyr::filter(log2fc >= 1 | log2fc <= -1)
 
 t4_vol_lncs_plot <- plot_volcano(t4_vol_lncs, "DE lncRNAs post exercise when normalised using only lncRNAs")
 

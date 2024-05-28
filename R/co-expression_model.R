@@ -6,6 +6,7 @@ library(dplyr)
 library(trainomeHelper)
 library(ggplot2)
 library(ggrepel)
+library(lme4)
 #Load the functions most regularly used
 source("R/Trainome_functions.R")
 
@@ -51,7 +52,7 @@ full_df <- readRDS("data/Ct_genes_TPM.RDS")
 #Limiting the log fold 2 change to those above 1, or those below -1
 
 trained_t4 <- train_model %>%
-  dplyr::filter(coef == "training_statustrained:time3")%>%
+  dplyr::filter(coef == "training_statustrained:timet3")%>%
   dplyr::filter(log2fc >= 1 | log2fc <= -1)
 
 
@@ -83,12 +84,12 @@ met_df <- lncs_of_int %>%
 
 #initialising the arguments
 args<- list(formula = y ~  lncRNA + time*condition +(1|participant),
-            family = glmmTMB::nbinom2())
+            family = lme4::lmer)
 
 
 # Build the correlation model
 
-cor_model <- seq_wrapper(fitting_fun = glmmTMB::glmmTMB,
+cor_model <- seq_wrapper(fitting_fun = lme4::lmer,
                          arguments = args,
                          data = genes_TPM,
                          metadata = met_df,

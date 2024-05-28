@@ -64,7 +64,6 @@ TPM <- extract_rsem_gene_counts("data/Contratrain_rsem_genes/")%>%
   separate(gene_id, c("gene_id", "gene_name"), sep = "_", extra = "merge") %>%
   dplyr::select(-(gene_id))
  
-TPM[,-1] <-  round(TPM[,-1], 0)
 
 #saveRDS(TPM, file = "data/Ct_genes_TPM.RDS")
 
