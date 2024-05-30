@@ -1,26 +1,10 @@
-#This script is where we build a model that checks for coexpression of DE lncs
-# and mRNA (protein_coding) genes
-
-
-library(dplyr)
-library(trainomeHelper)
-library(ggplot2)
-library(ggrepel)
-library(lme4)
-#Load the functions most regularly used
 source("R/Trainome_functions.R")
 
 
+#This is to test the linear mixed effects model on a sample lncra for coexpression analyses
 #Load the metadata
 ct_metadata <- readRDS("data/contratrain_metadata.RDS")
 
-
-
-#Load the two models, one that modeled volume of PRET, the other modelled presen 
-#The volume model normalised with all genes
-Vol_model <- readRDS("data/models/Filtered_coefs/Vol_model_all.RDS")
-
-unique(Vol_model$coef)
 
 
 
@@ -51,7 +35,7 @@ full_df <- readRDS("data/Ct_genes_TPM.RDS")
 #Limiting the log fold 2 change to those above 1, or those below -1
 
 trained_t4 <- train_model %>%
-  dplyr::filter(coef == "training_statustrained:timet3")%>%
+  dplyr::filter(coef == "training_statustrained:timet4")%>%
   dplyr::filter(log2fc >= 1 | log2fc <= -1)
 
 
@@ -78,33 +62,8 @@ met_df <- lncs_of_int %>%
   rename(lncRNA = gene_name)
 
 
-
-
-
 #initialising the arguments
-args<- list(formula = y ~  lncRNA + time*condition +(1|participant),
-            family = lme4::lmer)
-
-
-# Build the correlation model
-
-cor_model <- seq_wrapper(fitting_fun = lme4::lmer,
-                         arguments = args,
-                         data = genes_TPM,
-                         metadata = met_df,
-                         samplename = "seq_sample_id",
-                         summary_fun = sum_fun,
-                         eval_fun = eval_mod,
-                         exported = list(),
-                         #return_models = F,
-                        # subset = 1:550,
-                         cores = ncores)
-
-
-
-
-
-
-
+model <- lmer(lncRNA~counts + time*condition +(1|participant),
+            data = met_df)
 
 
