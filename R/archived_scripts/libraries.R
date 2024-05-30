@@ -1,6 +1,6 @@
-      #  if (!require("BiocManager", quietly = TRUE))
-      #     install.packages("BiocManager")
-      # BiocManager::install("ensembledb");
+             # if (!require("BiocManager", quietly = TRUE))
+             #     install.packages("BiocManager")
+             # BiocManager::install("org.Hs.eg.db");
 #source("https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/GeneAnnotation/installAnRichment.R");
 #installAnRichment();
 #install.packages("ggchicklet", repos = "https://cinc.rud.is")
@@ -44,7 +44,7 @@ library(glmmTMB)
 library(trainomeMetaData)
 library(DHARMa)
 library(marginaleffects)
-#library(clusterProfiler)
+library(lme4)
 #library(GOfuncR)
 #library(AnnotationHub)
 # library(ensembldb)

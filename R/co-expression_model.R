@@ -43,11 +43,17 @@ unique(train_model$coef)
 
 
 #Load the protein coding genes saved as TPM values
-genes_TPM <- readRDS("data/protein_coding_genes_TPM.RDS")
+genes_TPM <- readRDS("data/protein_coding_genes_TPM.RDS")%>%
+  #drop gene_id, select gene_name and any of the sample names that match sample name in metadata
+  dplyr::select(gene_name, any_of(ct_metadata$seq_sample_id))
+
+
 
 
 #Load the full gene counts in TPM
-full_df <- readRDS("data/Ct_genes_TPM.RDS")
+full_df <- readRDS("data/Ct_genes_TPM.RDS")%>%
+  #drop gene_id, select gene_name and any of the sample names that match sample name in metadata
+  dplyr::select(gene_name, any_of(ct_metadata$seq_sample_id))
 
 
 
@@ -86,13 +92,12 @@ met_df <- lncs_of_int %>%
 
 
 #initialising the arguments
-args<- list(formula = y ~ counts + lncRNA + time  +(1|participant),
-            family = gaussian())
+args<- list(formula = y ~ counts + lncRNA + time  +(1|participant))
 
 
 # Build the correlation model
 
-cor_model <- seqwrap(fitting_fun = lme4::glmer,
+cor_model <- seqwrap(fitting_fun = lme4::lmer,
                          arguments = args,
                          data = genes_TPM,
                          metadata = met_df,
@@ -106,6 +111,7 @@ cor_model <- seqwrap(fitting_fun = lme4::glmer,
 
 
 
+cor_model$su
 
 #get model evaluation using the in-house for combinaing all model evaluations into a table
 mod_eval <- model_eval(cor_model)

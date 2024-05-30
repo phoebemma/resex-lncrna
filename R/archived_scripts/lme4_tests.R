@@ -1,5 +1,5 @@
 source("R/Trainome_functions.R")
-
+library(glmmTMB)
 
 #This is to test the linear mixed effects model on a sample lncra for coexpression analyses
 #Load the metadata
@@ -59,11 +59,15 @@ met_df <- lncs_of_int %>%
                values_to = "counts") %>%
   inner_join(ct_metadata, by = "seq_sample_id") %>%
   #rename the gene_name to lncRNA to avoid mixing up with the mRNA genenames
-  rename(lncRNA = gene_name)
+  dplyr::rename(lncRNA = gene_name)
 
 
 #initialising the arguments
-model <- lmer(lncRNA~counts + time*condition +(1|participant),
+model <- lmer(counts~  time+ condition +(1|participant),
             data = met_df)
+testDispersion(model)
+summary(model)
 
-
+mod <- glmmTMB(counts~  time+condition +(1|participant),
+               data = met_df, family = nbinom2() )
+summary(mod)
