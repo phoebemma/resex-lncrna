@@ -1,6 +1,10 @@
 #This script is where we build a model that checks for coexpression of DE lncs
 # and mRNA (protein_coding) genes
+<<<<<<< HEAD
 
+=======
+#source("R/archived_scripts/libraries.R")
+>>>>>>> 461f62d619e536674a37617e30e434d69ac1e454
 
 library(dplyr)
 library(trainomeHelper)
@@ -51,7 +55,7 @@ full_df <- readRDS("data/Ct_genes_TPM.RDS")
 #Limiting the log fold 2 change to those above 1, or those below -1
 
 trained_t4 <- train_model %>%
-  dplyr::filter(coef == "training_statustrained:timet3")%>%
+  dplyr::filter(coef == "timet4")%>%
   dplyr::filter(log2fc >= 1 | log2fc <= -1)
 
 
@@ -75,20 +79,20 @@ met_df <- lncs_of_int %>%
                values_to = "counts") %>%
   inner_join(ct_metadata, by = "seq_sample_id") %>%
   #rename the gene_name to lncRNA to avoid mixing up with the mRNA genenames
-  rename(lncRNA = gene_name)
+  dplyr::rename(lncRNA = gene_name)
 
 
 
 
 
 #initialising the arguments
-args<- list(formula = y ~  lncRNA + time*condition +(1|participant),
-            family = lme4::lmer)
+args<- list(formula = y ~ counts + lncRNA + time  +(1|participant),
+            family = gaussian())
 
 
 # Build the correlation model
 
-cor_model <- seq_wrapper(fitting_fun = lme4::lmer,
+cor_model <- seqwrap(fitting_fun = lme4::glmer,
                          arguments = args,
                          data = genes_TPM,
                          metadata = met_df,
@@ -102,6 +106,15 @@ cor_model <- seq_wrapper(fitting_fun = lme4::lmer,
 
 
 
+
+#get model evaluation using the in-house for combinaing all model evaluations into a table
+mod_eval <- model_eval(cor_model)
+
+
+
+#get the model summary using the created function
+#it takes as input the model name and number of unique coefficients
+mod_sum <-  model_sum(vol_model_all, 10)
 
 
 

@@ -2,10 +2,8 @@
 
 library(glmmTMB)
 library(seqwrap)
-<<<<<<< HEAD
-library(trainomeHelper)
-=======
->>>>>>> f309c189115fd22e250bd1c5699145544dbcc456
+
+
 #Load the functions most regularly used
 source("R/Trainome_functions.R")
 
@@ -76,41 +74,42 @@ args_4<- list(formula = y ~  efflibsize_lncs + training_status*time +(1|particip
 
 
 
-<<<<<<< HEAD
-vol_model_all<- seqwrap(fitting_fun = glmmTMB::glmmTMB,
-                       arguments = args_2,
-=======
+
 #Volume_dependent model
 vol_model_all<- seqwrap(fitting_fun = glmmTMB::glmmTMB,
                        arguments = args,
->>>>>>> f309c189115fd22e250bd1c5699145544dbcc456
                        data = lncRNAS,
                        metadata = ct_metadata,
                        samplename = "seq_sample_id",
-                       summary_fun = sum_func,
-                       eval_fun = eval_modd,
+                       summary_fun = sum_fun,
+                       eval_fun = eval_mod,
                        exported = list(),
-<<<<<<< HEAD
                       # return_models = TRUE,
                       # save_models = TRUE,
                        #subset = 1:10,
-=======
-                       return_models = F,
+
+                      # return_models = F,
                        #subset = NULL,
->>>>>>> f309c189115fd22e250bd1c5699145544dbcc456
                        cores = ncores)
 #Volume_dependent model
 
-
+colnames(vol_model_all$summaries$`A1BG-AS1`)
 #saveRDS(vol_model_all, file = "./data/models/vol_model_all.RDS")
 
-#get model evaluation
+
+
+
+
+
+
+#get model evaluation using the in-house for combinaing all model evaluations into a table
 mod_eval <- model_eval(vol_model_all)
 
 
 
-#get the model evaluation
-mod_eval <-  model_eval(vol_model_all)
+#get the model summary using the created function
+#it takes as input the model name and number of unique coefficients
+mod_sum <-  model_sum(vol_model_all, 10)
 
 
 
@@ -138,7 +137,7 @@ training_model_all<- seqwrap(fitting_fun = glmmTMB::glmmTMB,
 
 
 #Volume_dependent model lncs alone
-vol_model_lncRNAs<- seq_wrapper(fitting_fun = glmmTMB::glmmTMB,
+vol_model_lncRNAs<- seqwrap(fitting_fun = glmmTMB::glmmTMB,
                             arguments = args_3,
                             data = lncRNAS,
                             metadata = ct_metadata,
@@ -158,7 +157,7 @@ vol_model_lncRNAs<- seq_wrapper(fitting_fun = glmmTMB::glmmTMB,
 
 #Model for the trained versus untrained in lncRNAs
 
-training_model_lncRNA<- seq_wrapper(fitting_fun = glmmTMB::glmmTMB,
+training_model_lncRNA<- seqwrap(fitting_fun = glmmTMB::glmmTMB,
                                  arguments = args_4,
                                  data = lncRNAS,
                                  metadata = ct_metadata,

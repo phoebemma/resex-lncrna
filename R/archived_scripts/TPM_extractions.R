@@ -156,4 +156,4 @@ mRNAs <- annotation %>%
 
 
 #Save the file
-saveRDS(mRNAs, file = "data/protein_coding_genes_TPM.RDS")
+#saveRDS(mRNAs, file = "data/protein_coding_genes_TPM.RDS")
