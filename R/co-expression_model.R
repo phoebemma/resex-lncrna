@@ -62,7 +62,7 @@ full_df <- readRDS("data/Ct_genes_TPM.RDS")%>%
 #Limiting the log fold 2 change to those above 1, or those below -1
 
 trained_t4 <- train_model %>%
-  dplyr::filter(coef == "training_statustrained:timet4")%>%
+  dplyr::filter(coef == "training_statustrained:timet3")%>%
   dplyr::filter(log2fc >= 1 | log2fc <= -1)
 
 
@@ -93,7 +93,7 @@ met_df <- lncs_of_int %>%
 dim(genes_TPM)
 
 #initialising the arguments
-args<- list(formula = log(y + 0.1) ~ counts + time + condition  + (1|participant))
+args<- list(formula = log(y + 0.1) ~ counts + lncRNA + time + condition  + (1|participant))
 
 
 # Build the correlation model
