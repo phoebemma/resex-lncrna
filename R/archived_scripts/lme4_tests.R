@@ -1,6 +1,6 @@
 source("R/Trainome_functions.R")
 
-
+library(lme4)
 #This is to test the linear mixed effects model on a sample lncra for coexpression analyses
 #Load the metadata
 ct_metadata <- readRDS("data/contratrain_metadata.RDS")
@@ -16,7 +16,7 @@ unique(train_model$coef)
 
 
 
-#Laod the gene expression data in TPMS
+                #Laod the gene expression data in TPMS
 
 #The volume and training models were built on raw counts.But for co-expression studies
 #The TPM will be used
@@ -59,11 +59,30 @@ met_df <- lncs_of_int %>%
                values_to = "counts") %>%
   inner_join(ct_metadata, by = "seq_sample_id") %>%
   #rename the gene_name to lncRNA to avoid mixing up with the mRNA genenames
-  rename(lncRNA = gene_name)
+  dplyr::rename(lncRNA = gene_name)
 
 
 #initialising the arguments
-model <- lmer(lncRNA~counts + time*condition +(1|participant),
+model <- lmer(counts~ + time*condition +(1|participant),
             data = met_df)
 
+summary(model)
+
+model
+
+
+x <- data.frame(cbind(data.frame(coef=rownames(coef(summary(model))$cond))),
+                )
+
+
+sum_fun <- function(x){
+  
+  cond_effects <- data.frame(cbind(data.frame(coef = rownames(coef(summary(x))$cond))),
+                             coef(summary(x))$cond, 
+                             
+                             row.names = NULL)
+  
+  return(cond_effects)
+  
+}
 
