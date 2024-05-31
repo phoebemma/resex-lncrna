@@ -1,6 +1,11 @@
 source("R/Trainome_functions.R")
+<<<<<<< HEAD
 
 library(lme4)
+=======
+library(glmmTMB)
+
+>>>>>>> 9cf54acaaab2934f5b4b53b82e6fcc7a75795bde
 #This is to test the linear mixed effects model on a sample lncra for coexpression analyses
 #Load the metadata
 ct_metadata <- readRDS("data/contratrain_metadata.RDS")
@@ -63,9 +68,16 @@ met_df <- lncs_of_int %>%
 
 
 #initialising the arguments
+<<<<<<< HEAD
 model <- lmer(counts~ + time*condition +(1|participant),
+=======
+model <- lmer(counts~  time+ condition +(1|participant),
+>>>>>>> 9cf54acaaab2934f5b4b53b82e6fcc7a75795bde
             data = met_df)
+testDispersion(model)
+summary(model)
 
+<<<<<<< HEAD
 summary(model)
 
 model
@@ -86,3 +98,8 @@ sum_fun <- function(x){
   
 }
 
+=======
+mod <- glmmTMB(counts~  time+condition +(1|participant),
+               data = met_df, family = nbinom2() )
+summary(mod)
+>>>>>>> 9cf54acaaab2934f5b4b53b82e6fcc7a75795bde
