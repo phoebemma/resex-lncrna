@@ -11,6 +11,7 @@ library(trainomeHelper)
 library(ggplot2)
 library(ggrepel)
 library(lme4)
+library(lmerTest)
 #Load the functions most regularly used
 source("R/Trainome_functions.R")
 
@@ -61,7 +62,7 @@ full_df <- readRDS("data/Ct_genes_TPM.RDS")%>%
 #Limiting the log fold 2 change to those above 1, or those below -1
 
 trained_t4 <- train_model %>%
-  dplyr::filter(coef == "timet4")%>%
+  dplyr::filter(coef == "training_statustrained:timet4")%>%
   dplyr::filter(log2fc >= 1 | log2fc <= -1)
 
 
@@ -89,29 +90,63 @@ met_df <- lncs_of_int %>%
 
 
 
-
+dim(genes_TPM)
 
 #initialising the arguments
-args<- list(formula = y ~ counts + lncRNA + time  +(1|participant))
+args<- list(formula = log(y + 0.1) ~ counts + time + condition  + (1|participant))
 
 
 # Build the correlation model
 
-cor_model <- seqwrap(fitting_fun = lme4::lmer,
+cor_model <- seqwrap(fitting_fun = lmerTest::lmer,
                          arguments = args,
                          data = genes_TPM,
                          metadata = met_df,
                          samplename = "seq_sample_id",
                          summary_fun = sum_fun_lmer,
-                         eval_fun = eval_mod,
+                         eval_fun = NULL,
                          exported = list(),
-                         #return_models = F,
-                        # subset = 1:550,
+                     save_models = FALSE,
+                     return_models = FALSE,
+                    
+                        # subset = 1:100,
                          cores = ncores)
 
 
+cor_model$summaries[[1]]
 
-cor_model$su
+
+cor_model$errors%>%
+  mutate(err = unlist(errors_fit)) %>%
+  print()
+  
+  
+  pivot_longer(cols = errors_fit:warn_eval) %>%
+  
+  filter(!is.null(unlist(value))) %>%
+  print()
+
+length(names(cor_model$summaries))
+
+bind_rows(cor_model$summaries) %>%
+  
+  filter(coef == "counts") %>%
+ # dim()
+  
+  
+ #mutate(gene = names(cor_model$summaries)) %>%
+  ggplot(aes(Pr...t..)) + geom_histogram()
+
+length(names(cor_model$summaries))
+
+x <- cor_model$models[[1]]
+
+plot(x)
+eval_mod(x)
+
+cor_model$summaries[[1]]
+cor_model$evaluations
+
 
 #get model evaluation using the in-house for combinaing all model evaluations into a table
 mod_eval <- model_eval(cor_model)

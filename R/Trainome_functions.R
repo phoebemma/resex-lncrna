@@ -161,20 +161,41 @@ sum_fun_lmer <- function(x){
   return(cond_effects)
 }
 
+
+
+
 eval_mod <- function(x) {
   
   sim <- DHARMa::simulateResiduals(x, n = 1000)
   
-  disp <- DHARMa::testDispersion(sim, plot = FALSE) #tests if the simulated dispersion is equal to the observed dispersion
+   disp <- DHARMa::testDispersion(sim, plot = FALSE) #tests if the simulated dispersion is equal to the observed dispersion
   unif <- DHARMa::testUniformity(sim, plot = FALSE) # tests if the overall distribution conforms to expectations
-  zinfl <- DHARMa::testZeroInflation(sim, plot = FALSE) #tests if there are more zeros in the data than expected from the simulations
+   zinfl <- DHARMa::testZeroInflation(sim, plot = FALSE) #tests if there are more zeros in the data than expected from the simulations
   
   results <- data.frame(pval.disp = disp$p.value, 
-                        pval.unif = unif$p.value, 
-                        pval.zinfl = zinfl$p.value)
+     pval.unif = unif$p.value, 
+   pval.zinfl = zinfl$p.value)
   
   return(results)
 }
+
+
+#Evaluation model when using lmer
+eval_mod_lmer <- function(x) {
+  
+  sim <- DHARMa::simulateResiduals(x, n = 1000)
+  
+#  disp <- DHARMa::testDispersion(sim, plot = FALSE) #tests if the simulated dispersion is equal to the observed dispersion
+  unif <- DHARMa::testUniformity(sim, plot = FALSE) # tests if the overall distribution conforms to expectations
+#  zinfl <- DHARMa::testZeroInflation(sim, plot = FALSE) #tests if there are more zeros in the data than expected from the simulations
+  
+  results <- data.frame(#pval.disp = disp$p.value, 
+                        pval.unif = unif$p.value) #, 
+                        #pval.zinfl = zinfl$p.value)
+  
+  return(results)
+}
+
 
 
 
