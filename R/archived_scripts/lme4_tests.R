@@ -1,11 +1,10 @@
 source("R/Trainome_functions.R")
-<<<<<<< HEAD
+
 
 library(lme4)
-=======
+
 library(glmmTMB)
 
->>>>>>> 9cf54acaaab2934f5b4b53b82e6fcc7a75795bde
 #This is to test the linear mixed effects model on a sample lncra for coexpression analyses
 #Load the metadata
 ct_metadata <- readRDS("data/contratrain_metadata.RDS")
@@ -28,11 +27,17 @@ unique(train_model$coef)
 
 
 #Load the protein coding genes saved as TPM values
-genes_TPM <- readRDS("data/protein_coding_genes_TPM.RDS")
+genes_TPM <- readRDS("data/protein_coding_genes_TPM.RDS")%>%
+  #drop gene_id, select gene_name and any of the sample names that match sample name in metadata
+  dplyr::select(gene_name, any_of(ct_metadata$seq_sample_id))
+
 
 
 #Load the full gene counts in TPM
-full_df <- readRDS("data/Ct_genes_TPM.RDS")
+full_df <- readRDS("data/Ct_genes_TPM.RDS")%>%
+  #drop gene_id, select gene_name and any of the sample names that match sample name in metadata
+  dplyr::select(gene_name, any_of(ct_metadata$seq_sample_id))
+
 
 
 
@@ -68,23 +73,32 @@ met_df <- lncs_of_int %>%
 
 
 #initialising the arguments
-<<<<<<< HEAD
-model <- lmer(counts~ + time*condition +(1|participant),
-=======
+
 model <- lmer(counts~  time+ condition +(1|participant),
->>>>>>> 9cf54acaaab2934f5b4b53b82e6fcc7a75795bde
             data = met_df)
 testDispersion(model)
 summary(model)
 
-<<<<<<< HEAD
-summary(model)
 
+
+
+
+x <- data.frame(cbind(data.frame(coef = rownames(coef(summary(model)))),
+                coef(summary(model)),
+                row.names = NULL))
 model
 
 
-x <- data.frame(cbind(data.frame(coef=rownames(coef(summary(model))$cond))),
-                )
+
+
+
+mod <- glmmTMB(counts~  time+condition +(1|participant),
+               data = met_df, family = nbinom2() )
+summary(mod)
+
+coef(summary(mod))$cond
+
+
 
 
 sum_fun <- function(x){
@@ -95,11 +109,4 @@ sum_fun <- function(x){
                              row.names = NULL)
   
   return(cond_effects)
-  
-}
-
-=======
-mod <- glmmTMB(counts~  time+condition +(1|participant),
-               data = met_df, family = nbinom2() )
-summary(mod)
->>>>>>> 9cf54acaaab2934f5b4b53b82e6fcc7a75795bde
+  }

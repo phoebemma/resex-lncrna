@@ -1,10 +1,10 @@
 #This script is where we build a model that checks for coexpression of DE lncs
 # and mRNA (protein_coding) genes
-<<<<<<< HEAD
 
-=======
+
+
 #source("R/archived_scripts/libraries.R")
->>>>>>> 461f62d619e536674a37617e30e434d69ac1e454
+
 
 library(dplyr)
 library(trainomeHelper)
