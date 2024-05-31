@@ -149,6 +149,18 @@ sum_fun <- function(x){
 }
 
 
+
+
+sum_fun_lmer <- function(x){
+  
+  cond_effects <- data.frame(cbind(data.frame(coef = rownames(coef(summary(x)))),
+                                   coef(summary(x)), 
+                                   
+                                   row.names = NULL))
+  
+  return(cond_effects)
+}
+
 eval_mod <- function(x) {
   
   sim <- DHARMa::simulateResiduals(x, n = 1000)
