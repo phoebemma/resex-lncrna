@@ -153,10 +153,10 @@ sum_fun <- function(x){
 
 sum_fun_lmer <- function(x){
   
-  cond_effects <- data.frame(cbind(data.frame(coef = rownames(coef(summary(x)))),
+  cond_effects <- data.frame(cbind(data.frame(coef = rownames(coef(summary(x))))),
                                    coef(summary(x)), 
                                    
-                                   row.names = NULL))
+                                   row.names = NULL)
   
   return(cond_effects)
 }

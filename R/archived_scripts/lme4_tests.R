@@ -76,16 +76,21 @@ met_df <- lncs_of_int %>%
 
 model <- lmer(counts~  time+ condition +(1|participant),
             data = met_df)
+
+
+
+coef(summary(model))
+
 testDispersion(model)
-summary(model)
 
 
 
 
 
- # <- data.frame(cbind(data.frame(coef = rownames(coef(summary(model)))),
- #                coef(summary(model)),
- #                row.names = NULL))
+
+ x  <- data.frame(cbind(data.frame(coef = rownames(coef(summary(model)))),
+                 coef(summary(model)),
+                 row.names = NULL))
 model
 
 
