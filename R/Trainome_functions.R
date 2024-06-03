@@ -32,7 +32,7 @@ model_sum <- function(x, y){
   bind_rows(x$summaries) %>%
        mutate(target = rep(names(x$summaries), each = y))%>%
        subset(!coef == "(Intercept)") %>%
-       mutate(adj.p = p.adjust(Pr...z.., method = "fdr"),
+       mutate(adj.p = p.adjust(Pr...t.., method = "fdr"),
               log2fc = Estimate/log(2),
               
               fcthreshold = if_else(abs(log2fc) > 0.5, "s", "ns"))

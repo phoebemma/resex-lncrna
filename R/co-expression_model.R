@@ -7,7 +7,6 @@
 
 
 library(dplyr)
-library(trainomeHelper)
 library(ggplot2)
 library(ggrepel)
 library(lme4)
@@ -72,10 +71,25 @@ plot_volcano(trained_t4, "t")
 
 
 
+#Look at volume model
+
+cond3_t4 <- Vol_model %>%
+  dplyr::filter(coef == "conditionset3:timet4")%>%
+  dplyr::filter(log2fc >= 1 | log2fc <= -1)
+
+
+#Visualize it
+plot_volcano(cond3_t4, "t")
+
+
+
+
+
+
 # extract the DEs from the full gene counts
 
 
-lncs_of_int <- full_df[full_df$gene_name %in% trained_t4$target,]
+lncs_of_int <- full_df[full_df$gene_name %in% cond3_t4$target,]
 
 
 
@@ -90,7 +104,7 @@ met_df <- lncs_of_int %>%
 
 
 
-dim(genes_TPM)
+#dim(genes_TPM)
 
 #initialising the arguments
 args<- list(formula = log(y + 0.1) ~ counts + lncRNA + time + condition  + (1|participant))
@@ -155,10 +169,24 @@ mod_eval <- model_eval(cor_model)
 
 #get the model summary using the created function
 #it takes as input the model name and number of unique coefficients
-mod_sum <-  model_sum(vol_model_all, 10)
+mod_sum <-  model_sum(cor_model, 15)
+
+
+length(names(cor_model$summaries))
 
 
 
+nrow(cor_model$summaries)
+
+x <- bind_rows(cor_model$summaries) %>%
+ 
+  mutate(target = rep(names(cor_model$summaries), each = 15))%>%
+  subset(!coef == "(Intercept)") %>%
+  mutate(adj.p = p.adjust(Pr...t.., method = "fdr"),
+         log2fc = Estimate/log(2),
+         
+         fcthreshold = if_else(abs(log2fc) > 0.5, "s", "ns"))
 
 
-
+length(unique(x$coef))
+n(x)
