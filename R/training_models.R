@@ -112,67 +112,216 @@ mod_sum <-  model_sum(training_model, 7)
 
 
 
+#use the filter model parameter function to filter the models that fit the following conditions
+#(Pr...z.. <= 0.05 & fcthreshold == "s"  & pval.disp >= 0.05 & pval.unif >= 0.05 
+
+#it takes as input the data containing the model summary, and that containing the model evaluation
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#Load the raw model
-train_all <- readRDS("data/models/training_model_all.RDS") 
-
-
-
-#get model evaluation
-mod_eval <- model_eval(train_all)
-
-#get the model summaries
-mod_sum <- model_sum(train_all, 7)
-
-
-#merge the model summaries and model evaluation into one dataframe
-
-
-train_all <- filt_model_parameters(mod_sum, mod_eval) %>%
+training_model_filt <- filt_model_parameters(mod_eval, mod_sum)%>%
   dplyr::filter(coef != "efflibsize")
 
-unique(train_all$coef)
+
+unique(training_model_filt$coef)
+
+#save filtered model
+#saveRDS(training_model_filt, "data/models/seqwrap_generated_models/filtered_training_model.RDS")
 
 
-#save the filtered coefs 
-#saveRDS(train_all, file = "./data/models/Filtered_coefs/training_model_all.RDS")
 
 
 
 
-#Load the training model nrmalised with lncs alone
 
-train_lncs <- readRDS("data/models/training_model_lncRNA.RDS")
-
-
-#get model evaluation for lnsc
-mod_eval_lncs <- model_eval(train_lncs)
-
-#get model summaries
-mod_sum_lncs <- model_sum(train_lncs, 7)
+#Select those differentially expressed at midexercise
+t3 <- training_model_filt %>%
+  dplyr::filter(coef == "training_statustrained:timet3")%>%
+  dplyr::filter(log2fc >= 1 | log2fc <= -1)
 
 
-train_lncs <- filt_model_parameters(mod_sum_lncs, mod_eval_lncs) %>%
-  dplyr::filter(coef != "efflibsize_lncs")
+#make a volcano plot using the plot_volcano function
+jpeg(filename = "./plots/DE_trained_vs_untrained_at_midexercise.jpeg",
+     width = 850, height = 500, quality = 100)
+plot_volcano(t3, "DE lncs between trained and untrained legs at mid exercise")
+dev.off()
 
-#saveRDS(train_lncs, file = "./data/models/Filtered_coefs/training_model_lncs.RDS")
 
+
+#Select those differentially expressed at post exercise
+t4 <- training_model_filt %>%
+  dplyr::filter(coef == "training_statustrained:timet4")%>%
+  dplyr::filter(log2fc >= 1 | log2fc <= -1)
+
+
+#make a volcano plot using the plot_volcano function
+jpeg(filename = "./plots/DE_trained_vs_untrained_postexercise.jpeg",
+     width = 850, height = 500, quality = 100)
+plot_volcano(t4, "DE lncs between trained and untrained at postexercise")
+dev.off()
+
+
+
+
+#Coexpression analyses
+
+#This builds a model to check the protein coding genes coexpressed with the DE lncs
+
+#The analyses below uses TPM values for both lncs and the proetin coding genes
+
+library(ggrepel)
+library(lme4)
+library(lmerTest)
+
+
+
+
+#Load the protein coding genes saved as TPM values
+genes_TPM <- readRDS("data/protein_coding_genes_TPM.RDS")%>%
+  #drop gene_id, select gene_name and any of the sample names that match sample name in metadata
+  dplyr::select(gene_name, any_of(ct_metadata$seq_sample_id))
+
+
+
+
+#Load the full gene counts in TPM
+full_df <- readRDS("data/Ct_genes_TPM.RDS")%>%
+  #drop gene_id, select gene_name and any of the sample names that match sample name in metadata
+  dplyr::select(gene_name, any_of(ct_metadata$seq_sample_id))
+
+
+
+
+
+#extract the lncs of interest at mid exercise
+lncs_of_int <- full_df[full_df$gene_name %in% t3$target,]
+
+
+
+#extract the metadata and merge to the lncs of interest
+met_df <- lncs_of_int %>%
+  pivot_longer(cols = -("gene_name"),
+               names_to = "seq_sample_id",
+               values_to = "counts") %>%
+  inner_join(ct_metadata, by = "seq_sample_id") %>%
+  #rename the gene_name to lncRNA to avoid mixing up with the mRNA genenames
+  dplyr::rename(lncRNA = gene_name)
+
+
+
+
+#initialising the arguments
+args<- list(formula = log(y + 0.1) ~ counts + lncRNA + time + condition  + (1|participant))
+
+
+# Build the correlation model
+
+cor_model <- seqwrap(fitting_fun = lmerTest::lmer,
+                     arguments = args,
+                     data = genes_TPM,
+                     metadata = met_df,
+                     samplename = "seq_sample_id",
+                     summary_fun = sum_fun_lmer,
+                     eval_fun = NULL,
+                     exported = list(),
+                     save_models = FALSE,
+                     return_models = FALSE,
+                     
+                     # subset = 1:100,
+                     cores = ncores)
+
+
+
+
+cor_model$summaries[[1]]
+
+
+
+
+bind_rows(cor_model$summaries) %>%
+  
+  filter(coef == "counts") %>%
+  # dim()
+  
+  
+  #mutate(gene = names(cor_model$summaries)) %>%
+  ggplot(aes(Pr...t..)) + geom_histogram()
+
+
+
+length(names(cor_model$summaries))
+
+cor_model$evaluations
+
+
+
+#get model summary using the in-house for combinaing all model summaries into a table
+sum_model <- model_sum_lmer(cor_model, 20)
+
+
+bind_rows(cor_model$summaries) %>%
+  mutate(target = rep(names(cor_model$summaries), each = 20))%>%
+  #subset(!coef == "(Intercept)") %>%
+  mutate(adj.p = p.adjust(Pr...t.., method = "fdr"),
+         log2fc = Estimate/log(2),
+         
+         fcthreshold = if_else(abs(log2fc) > 0.5, "s", "ns"))
+
+
+
+length(rep(names(cor_model$summaries)))
+
+
+
+
+
+
+
+
+
+# #Load the raw model
+# train_all <- readRDS("data/models/training_model_all.RDS")
+# 
+# 
+# 
+# #get model evaluation
+# mod_eval <- model_eval(train_all)
+# 
+# #get the model summaries
+# mod_sum <- model_sum(train_all, 7)
+# 
+# 
+# #merge the model summaries and model evaluation into one dataframe
+# 
+# 
+# train_all <- filt_model_parameters(mod_sum, mod_eval) %>%
+#   dplyr::filter(coef != "efflibsize")
+# 
+# unique(train_all$coef)
+# 
+# 
+# #save the filtered coefs
+# #saveRDS(train_all, file = "./data/models/Filtered_coefs/training_model_all.RDS")
+# 
+# 
+# 
+# 
+# #Load the training model nrmalised with lncs alone
+# 
+# train_lncs <- readRDS("data/models/training_model_lncRNA.RDS")
+# 
+# 
+# #get model evaluation for lnsc
+# mod_eval_lncs <- model_eval(train_lncs)
+# 
+# #get model summaries
+# mod_sum_lncs <- model_sum(train_lncs, 7)
+# 
+# 
+# train_lncs <- filt_model_parameters(mod_sum_lncs, mod_eval_lncs) %>%
+#   dplyr::filter(coef != "efflibsize_lncs")
+# 
+# #saveRDS(train_lncs, file = "./data/models/Filtered_coefs/training_model_lncs.RDS")
+# 
 
 
 
