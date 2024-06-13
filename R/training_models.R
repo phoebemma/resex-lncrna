@@ -1,5 +1,5 @@
 
-
+read<- readr::read_csv("data/Contratrain_rsem_genes/1-subj1sample1.genes.results")
 
 #This script builds the model based on training status of participants' legs
 
@@ -175,6 +175,7 @@ library(lmerTest)
 
 
 
+
 #Load the protein coding genes saved as TPM values
 genes_TPM <- readRDS("data/protein_coding_genes_TPM.RDS")%>%
   #drop gene_id, select gene_name and any of the sample names that match sample name in metadata
@@ -188,12 +189,20 @@ full_df <- readRDS("data/Ct_genes_TPM.RDS")%>%
   #drop gene_id, select gene_name and any of the sample names that match sample name in metadata
   dplyr::select(gene_name, any_of(ct_metadata$seq_sample_id))
 
+#loda full counts in FPKM
+
+genes_fpkm <- readRDS("data/Ct_genes_FPKM.RDS")%>%
+  #drop gene_id, select gene_name and any of the sample names that match sample name in metadata
+  dplyr::select(gene_name, any_of(ct_metadata$seq_sample_id))
+
+
+mRNA_genes_fpkm <- genes_fpkm[genes_fpkm$gene_name %in% genes_TPM$gene_name,]
 
 
 
 
 #extract the lncs of interest at mid exercise
-lncs_of_int <- full_df[full_df$gene_name %in% t3$target,]
+lncs_of_int <- genes_fpkm[genes_fpkm$gene_name %in% t3$target,]
 
 
 
@@ -210,36 +219,59 @@ met_df <- lncs_of_int %>%
 
 
 #initialising the arguments
-args<- list(formula = log(y + 0.1) ~ counts + lncRNA + time + condition  + (1|participant))
-
+args<- list(formula = rank(y) ~ 0 + lncRNA + lncRNA:rank(counts) + lncRNA:time + lncRNA:condition + (1|participant)) 
+                                                                            
+                                                                            
+args1<- list(formula = y ~  lncRNA:counts + lncRNA + lncRNA:time + lncRNA:condition  + (1|participant))                                                                  
 
 # Build the correlation model
 
 cor_model <- seqwrap(fitting_fun = lmerTest::lmer,
-                     arguments = args,
-                     data = genes_TPM,
+                     arguments = args1,
+                     data = mRNA_genes_fpkm,
                      metadata = met_df,
                      samplename = "seq_sample_id",
                      summary_fun = sum_fun_lmer,
-                     eval_fun = NULL,
+                     eval_fun = eval_mod_lmer,
                      exported = list(),
                      save_models = FALSE,
                      return_models = FALSE,
                      
-                     # subset = 1:100,
-                     cores = ncores)
+                     subset = 1:10000,
+                     cores = ncores-2)
 
 
 
 
 cor_model$summaries[[1]]
 
+### Plotiing one gene vs lncRNA
+
+genes_fpkm %>%
+  filter(gene_name == "DPM1") %>%
+  pivot_longer(cols = starts_with("X"), names_to = "seq_sample_id" ) %>%
+  inner_join(met_df %>%
+               filter(lncRNA == "LANCL1-AS1")) %>%
+  ggplot(aes(value, counts)) + geom_point()
+  print()
+
+
+
+  cor_model$errors%>%
+    mutate(err = unlist(errors_fit)) %>%
+    #print()
+  
+  
+  pivot_longer(cols = errors_fit:warn_eval) %>%
+    
+    filter(!is.null(unlist(value))) %>%
+    print()
 
 
 
 bind_rows(cor_model$summaries) %>%
   
-  filter(coef == "counts") %>%
+  filter(coef == "lncRNASMIM2-IT1") %>%
   # dim()
   
   
@@ -255,26 +287,30 @@ cor_model$evaluations
 
 
 #get model summary using the in-house for combinaing all model summaries into a table
-sum_model <- model_sum_lmer(cor_model, 20)
+#sum_model <- model_sum_lmer(cor_model, 20)
 
 
 bind_rows(cor_model$summaries) %>%
-  mutate(target = rep(names(cor_model$summaries), each = 20))%>%
-  #subset(!coef == "(Intercept)") %>%
+  subset(!coef == "(Intercept)") %>%
+  mutate(target = rep(names(cor_model$summaries), each = 89))%>%
+  
   mutate(adj.p = p.adjust(Pr...t.., method = "fdr"),
          log2fc = Estimate/log(2),
          
-         fcthreshold = if_else(abs(log2fc) > 0.5, "s", "ns"))
+         fcthreshold = if_else(abs(log2fc) > 0.5, "s", "ns"))%>%
+  filter(fcthreshold == "s" )%>%
+  filter( adj.p <= 0.05)%>%
+  print()
 
 
 
 length(rep(names(cor_model$summaries)))
 
+names(cor_model$summaries)
 
 
-
-
-
+x <- bind_rows(cor_model$summaries) %>%
+  subset(!coef == "(Intercept)")
 
 
 
