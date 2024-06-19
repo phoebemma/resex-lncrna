@@ -1,5 +1,5 @@
 
-read<- readr::read_csv("data/Contratrain_rsem_genes/1-subj1sample1.genes.results")
+#read<- readr::read_csv("data/Contratrain_rsem_genes/1-subj1sample1.genes.results")
 
 #This script builds the model based on training status of participants' legs
 
@@ -133,6 +133,18 @@ unique(training_model_filt$coef)
 
 
 
+
+
+
+##This is done when loading the already run model
+
+
+#training_model_filt <- readRDS("data/models/seqwrap_generated_models/filtered_training_model.RDS")
+
+
+
+
+
 #Select those differentially expressed at midexercise
 t3 <- training_model_filt %>%
   dplyr::filter(coef == "training_statustrained:timet3")%>%
@@ -198,7 +210,8 @@ genes_fpkm <- readRDS("data/Ct_genes_FPKM.RDS")%>%
 
 mRNA_genes_fpkm <- genes_fpkm[genes_fpkm$gene_name %in% genes_TPM$gene_name,]
 
-
+mRNA_genes_fpkm<- mRNA_genes_fpkm %>%
+  dplyr::filter(rowSums(mRNA_genes_fpkm[,-1]) != 0)
 
 
 #extract the lncs of interest at mid exercise
@@ -219,10 +232,10 @@ met_df <- lncs_of_int %>%
 
 
 #initialising the arguments
-args<- list(formula = rank(y) ~ 0 + lncRNA + lncRNA:rank(counts) + lncRNA:time + lncRNA:condition + (1|participant)) 
+args<- list(formula = y ~  lncRNA + lncRNA:counts + lncRNA:time + lncRNA:condition + (1|participant)) 
                                                                             
                                                                             
-args1<- list(formula = y ~  lncRNA:counts + lncRNA + lncRNA:time + lncRNA:condition  + (1|participant))                                                                  
+args1<- list(formula = y ~  counts + lncRNA + time + condition  + (1|participant))                                                                  
 
 # Build the correlation model
 
@@ -237,18 +250,40 @@ cor_model <- seqwrap(fitting_fun = lmerTest::lmer,
                      save_models = FALSE,
                      return_models = FALSE,
                      
-                     subset = 1:10000,
+                     #subset = 1:10,
                      cores = ncores-2)
 
+#saveRDS(cor_model, "data/models/seqwrap_generated_models/simpler_training_correlation_model.RDS")
+
+
+cor_model <- readRDS("data/models/seqwrap_generated_models/simpler_training_correlation_model.RDS")
+
+cor_model2 <- seqwrap(fitting_fun = lmerTest::lmer,
+                     arguments = args,
+                     data = mRNA_genes_fpkm,
+                     metadata = met_df,
+                     samplename = "seq_sample_id",
+                     summary_fun = sum_fun_lmer,
+                     eval_fun = eval_mod_lmer,
+                     exported = list(),
+                     save_models = FALSE,
+                     return_models = FALSE,
+                     
+                     #subset = 1:10,
+                     cores = ncores-2)
 
 
 
 cor_model$summaries[[1]]
 
+cor_model2$summaries[[1]]
+
+#saveRDS(cor_model2, "data/models/seqwrap_generated_models/interaction_training_model.RDS")
+#cor_model$errors$err_sum
 ### Plotiing one gene vs lncRNA
 
 genes_fpkm %>%
-  filter(gene_name == "DPM1") %>%
+  filter(gene_name == "TSPAN6") %>%
   pivot_longer(cols = starts_with("X"), names_to = "seq_sample_id" ) %>%
   inner_join(met_df %>%
                filter(lncRNA == "LANCL1-AS1")) %>%
@@ -257,19 +292,22 @@ genes_fpkm %>%
 
 
 
-  cor_model$errors%>%
+temp <-  cor_model2$errors%>%
+   
     mutate(err = unlist(errors_fit)) %>%
-    #print()
+
   
   
   pivot_longer(cols = errors_fit:warn_eval) %>%
     
-    filter(!is.null(unlist(value))) %>%
+    filter(name == "err_sum") %>%
     print()
 
+ unlist(temp$value)
+print(x) 
+bind_cols(x)
 
-
-bind_rows(cor_model$summaries) %>%
+bind_rows(cor_model2$summaries) %>%
   
   filter(coef == "lncRNASMIM2-IT1") %>%
   # dim()
@@ -287,30 +325,99 @@ cor_model$evaluations
 
 
 #get model summary using the in-house for combinaing all model summaries into a table
-#sum_model <- model_sum_lmer(cor_model, 20)
+#this takes as input the model name and number of coefficients
 
 
-bind_rows(cor_model$summaries) %>%
+#This is the simpler model that takes the count, lncRNA, time and condition as input
+simpler_model <- model_sum_lmer(cor_model, 20)
+
+#saveRDS(simpler_model, "data/models/seqwrap_generated_models/filtered_simpler_training_model.RDS")
+
+interaction_filled_model <- model_sum_lmer(cor_model2, 90)
+
+cor
+
+
+
+#GABRGI is a gene throwing errors in the model
+#this removes it from the model summaries
+  x <- bind_rows(within(cor_model2$summaries, rm(GABRG1))) %>%
   subset(!coef == "(Intercept)") %>%
-  mutate(target = rep(names(cor_model$summaries), each = 89))%>%
-  
+  mutate(target = rep(names(within(cor_model2$summaries, rm(GABRG1))), each = 89))%>%
+
   mutate(adj.p = p.adjust(Pr...t.., method = "fdr"),
          log2fc = Estimate/log(2),
-         
-         fcthreshold = if_else(abs(log2fc) > 0.5, "s", "ns"))%>%
-  filter(fcthreshold == "s" )%>%
-  filter( adj.p <= 0.05)%>%
-  print()
 
+         fcthreshold = if_else(abs(log2fc) > 0.5, "s", "ns")) %>%
+  filter(fcthreshold == "s" & adj.p <= 0.05 )%>%
+    print()
 
-
-length(rep(names(cor_model$summaries)))
-
-names(cor_model$summaries)
+  
+  unique(x$coef)
+  
+  #save this model
+#saveRDS(x, "data/models/seqwrap_generated_models/filtered_interaction_training_correlation_model.RDS")
+  
+  
+# 
+# x <- unlist(cor_model2$summaries$GABRG1)
+# 
+# length(rep(names(cor_model$summaries)))
+# 
+# names(cor_model$summaries)
 
 
 x <- bind_rows(cor_model$summaries) %>%
   subset(!coef == "(Intercept)")
+
+
+
+unique(simpler_model$coef)
+
+
+unique(simpler_model$target)
+
+
+
+
+#check the perform gene ontology  using enrichGO
+library(clusterProfiler)
+ego_df <- enrichGO(gene = x$target,
+                   #universe = unique(prot_genes$gene_name),
+                   keyType = "SYMBOL",
+                   OrgDb = org.Hs.eg.db,
+                   ont = "BP",
+                   pAdjustMethod = "BH",
+                   qvalueCutoff = 0.05,
+                   readable = T)
+
+
+cluster_summary <- data.frame(ego_df)
+
+dotplot(ego_df, showCategory = 15,
+
+        font.size = 8, title = "15 top ranked biological processes in coexpressed protein-coding genes set6 participants at t4") +
+  theme(axis.text = element_text(size = 15), axis.text.y = element_text(size = 15), axis.title.x = element_text(size = 20))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

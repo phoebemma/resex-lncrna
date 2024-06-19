@@ -56,7 +56,7 @@ TPM <- extract_rsem_gene_counts("data/Contratrain_rsem_genes/")%>%
 nonzero <- TPM %>%
   dplyr::filter(rowSums(TPM[,-1]) != 0)
 
-#saveRDS(nonzero, file = "data/Ct_genes_TPM.RDS")
+#saveRDS(nonzero, file = "data/Ct_genes_FPKM.RDS")
 
 
 # # Keep filtered genes (based on group)

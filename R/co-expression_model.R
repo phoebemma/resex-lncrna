@@ -162,8 +162,6 @@ cor_model$summaries[[1]]
 cor_model$evaluations
 
 
-#get model evaluation using the in-house for combinaing all model evaluations into a table
-mod_eval <- model_eval(cor_model)
 
 
 

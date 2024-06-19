@@ -3,7 +3,7 @@
 
  
  
- 
+#devtools::install_github("dhammarstrom/seqwrap")
  
  
  
@@ -37,6 +37,21 @@ model_sum <- function(x, y){
               
               fcthreshold = if_else(abs(log2fc) > 0.5, "s", "ns"))
 }
+
+
+
+#Function to extract model summary. Takes s input the model file and the number of coefficients
+model_sum_lmer <- function(x, y){
+  bind_rows(x$summaries) %>%
+    mutate(target = rep(names(x$summaries), each = y))%>%
+    subset(!coef == "(Intercept)") %>%
+    mutate(adj.p = p.adjust(Pr...t.., method = "fdr"),
+           log2fc = Estimate/log(2),
+           
+           fcthreshold = if_else(abs(log2fc) > 0.5, "s", "ns"))%>%
+    filter(fcthreshold == "s" & adj.p <= 0.05 )
+}
+
 
 
 
@@ -153,10 +168,14 @@ sum_fun <- function(x){
 
 sum_fun_lmer <- function(x){
   
+  # Get name from x
+  #geneid <- names(x)
+  
   cond_effects <- data.frame(cbind(data.frame(coef = rownames(coef(summary(x))))),
                                    coef(summary(x)), 
                                    
-                                   row.names = NULL)
+                                   row.names = NULL) #%>%
+    #mutate(geneid = geneid)
   
   return(cond_effects)
 }
@@ -336,7 +355,7 @@ extract_lncRNAs <- function(folder){
 #function to read Rsem .gene.results files
 read_Rsem_genes <- function(file){
   df <- readr::read_delim(file)
-  df <- df %>% dplyr::select(gene_id, length, TPM, effective_length, expected_count)
+  df <- df %>% dplyr::select(gene_id, length, TPM,FPKM, effective_length, expected_count)
   return(df)
 }
 
@@ -385,7 +404,7 @@ extract_rsem_gene_counts <- function(folder){
     
     genes[[i]] <- read_Rsem_genes(paste0(folder,"/", files[i])) %>% 
       mutate(file_id = gsub(".genes.results", "", files[i])) %>% ## This removes the file number
-      dplyr::select(gene_id, file_id, length, effective_length, expected_count, TPM)
+      dplyr::select(gene_id, file_id, length, effective_length, expected_count, FPKM, TPM)
     
     
     
@@ -394,7 +413,7 @@ extract_rsem_gene_counts <- function(folder){
   comd.df <- data.table::rbindlist(genes)
 
   
-  comb.df <- data.table::dcast(comd.df, gene_id ~ file_id, value.var = "TPM")
+  comb.df <- data.table::dcast(comd.df, gene_id ~ file_id, value.var = "FPKM")
   
   return(data.frame(comb.df))
 }

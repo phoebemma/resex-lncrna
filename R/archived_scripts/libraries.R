@@ -1,6 +1,6 @@
              # if (!require("BiocManager", quietly = TRUE))
-             #     install.packages("BiocManager")
-             # BiocManager::install("org.Hs.eg.db");
+             #    install.packages("BiocManager")
+             # BiocManager::install("clusterProfiler");
 #source("https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/GeneAnnotation/installAnRichment.R");
 #installAnRichment();
 #install.packages("ggchicklet", repos = "https://cinc.rud.is")
