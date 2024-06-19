@@ -5,19 +5,97 @@
 source("R/Trainome_functions.R")
 
 
-#Load the raw model
-Vol_all <- readRDS("data/models/vol_model_all.RDS") 
 
 
-#get the model evaluation
-mod_eval <-  model_eval(Vol_all)
- 
- 
- 
- #get the model summaries
- 
- mod_sum <- model_sum(Vol_all, 10)
- 
+#load lncRNAs counts
+
+lncRNAS <- readRDS("data/lncRNA_genes.RDS")
+
+#Load metadata file
+
+ct_metadata <- readRDS("data/contratrain_metadata.RDS")
+
+
+
+
+
+
+
+
+
+
+
+#argument for model that looks at the difference between conditions over time
+args<- list(formula = y ~  efflibsize + condition*time +(1|participant),
+            family = glmmTMB::nbinom2())
+
+
+
+#model
+volume_model<- seqwrap(fitting_fun = glmmTMB::glmmTMB,
+                         arguments = args,
+                         data = lncRNAS,
+                         metadata = ct_metadata,
+                         samplename = "seq_sample_id",
+                         summary_fun = sum_fun,
+                         eval_fun = eval_mod,
+                         exported = list(),
+                         save_models = FALSE,
+                         return_models = FALSE,
+                         cores = ncores)
+
+
+
+#save model in data folder
+#saveRDS(volume_model, "data/models/seqwrap_generated_models/volume_model.RDS")
+
+#get model evaluation using the in-house for combinaing all model evaluations into a table
+mod_eval <- model_eval(volume_model)
+
+
+volume_model$summaries[[1]]
+#get the model summary using the created function
+#it takes as input the model name and number of unique coefficients
+#it also filters out the model coefficient called "intercept"
+#creates adjusted p values, log2 fold change and fcld change significant threshold
+mod_sum <-  model_sum(volume_model, 10)
+
+
+
+
+
+#use the filter model parameter function to filter the models that fit the following conditions
+#(Pr...z.. <= 0.05 & fcthreshold == "s"  & pval.disp >= 0.05 & pval.unif >= 0.05 
+
+#it takes as input the data containing the model summary, and that containing the model evaluation
+
+
+volume_model_filt <- filt_model_parameters(mod_eval, mod_sum)%>%
+  dplyr::filter(coef != "efflibsize")
+
+
+#saveRDS(volume_model_filt, "data/models/seqwrap_generated_models/filtered_volume_model.RDS")
+
+
+
+
+
+
+
+
+# #Load the raw model
+# Vol_all <- readRDS("data/models/vol_model_all.RDS") 
+# 
+# 
+# #get the model evaluation
+# mod_eval <-  model_eval(Vol_all)
+#  
+#  
+#  
+#  #get the model summaries
+#  
+#  mod_sum <- model_sum(Vol_all, 10)
+#  
  #colnames(model_sum)
  
 #  mod_eval %>%

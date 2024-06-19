@@ -408,8 +408,10 @@ length(unique(x$target))
 library(org.Hs.eg.db)
 
 #get the entrezid of the unique genes
-entrez_ids <- bitr(simpler_model$target, "SYMBOL", "ENTREZID", org.Hs.eg.db)
+entrez_ids <- bitr(x$target, "SYMBOL", "ENTREZID", org.Hs.eg.db)
 
+
+#pathway overrepresentation analyses
 kegg_df <- enrichKEGG(gene = entrez_ids$ENTREZID,
                       organism = "hsa",
                       keyType = "kegg",
@@ -426,9 +428,19 @@ barplot(kegg_df, showCategory = 30, title = "30 highest enriched pathways in co-
 
 
 
+#keggs module overrepresentation analyses
+over_df <- enrichMKEGG(entrez_ids$ENTREZID,
+                             organism = "hsa",
+                      keyType = "kegg",
+                      # OrgDb = org.Hs.eg.db, 
+                      #ont = "MF", 
+                      pAdjustMethod = "BH", 
+                      qvalueCutoff = 0.05)
 
 
 
+barplot(over_df, showCategory = 30, title = "30 highest enriched pathways in co-expressed protein coding genes at baseline")+
+  theme(axis.text = element_text(size = 15), axis.text.y = element_text(size = 9), axis.title.x = element_text(size = 20))
 
 
 
