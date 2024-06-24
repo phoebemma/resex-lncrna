@@ -215,7 +215,7 @@ mRNA_genes_fpkm<- mRNA_genes_fpkm %>%
 
 
 #extract the lncs of interest at mid exercise
-lncs_of_int <- genes_fpkm[genes_fpkm$gene_name %in% t3$target,]
+lncs_of_int <- genes_fpkm[genes_fpkm$gene_name %in% t4$target,]
 
 
 
@@ -255,8 +255,13 @@ cor_model <- seqwrap(fitting_fun = lmerTest::lmer,
 
 #saveRDS(cor_model, "data/models/seqwrap_generated_models/simpler_training_correlation_model.RDS")
 
+length(unique(met_df$lncRNA))
+#the one below was obtained from the less stringent filtering based on logfc changes
+#saveRDS(cor_model, "data/models/seqwrap_generated_models/less_stringent_simpler_training_correlation_model.RDS")
 
-cor_model <- readRDS("data/models/seqwrap_generated_models/simpler_training_correlation_model.RDS")
+
+#saveRDS(cor_model, "data/models/seqwrap_generated_models/t4_simple_less_stringent_correlation_model.RDS")
+#cor_model <- readRDS("data/models/seqwrap_generated_models/simpler_training_correlation_model.RDS")
 
 cor_model2 <- seqwrap(fitting_fun = lmerTest::lmer,
                      arguments = args,
@@ -279,6 +284,7 @@ cor_model$summaries[[1]]
 cor_model2$summaries[[1]]
 
 #saveRDS(cor_model2, "data/models/seqwrap_generated_models/interaction_training_model.RDS")
+#saveRDS(cor_model2, "data/models/seqwrap_generated_models/t4_interaction_less_stringent_training_model.RDS")
 #cor_model$errors$err_sum
 ### Plotiing one gene vs lncRNA
 
@@ -292,7 +298,7 @@ genes_fpkm %>%
 
 
 
-temp <-  cor_model2$errors%>%
+temp <-  cor_model$errors%>%
    
     mutate(err = unlist(errors_fit)) %>%
 
@@ -303,7 +309,7 @@ temp <-  cor_model2$errors%>%
     filter(name == "err_sum") %>%
     print()
 
- unlist(temp$value)
+unlist(temp$value)
 print(x) 
 bind_cols(x)
 
@@ -329,7 +335,7 @@ cor_model$evaluations
 
 
 #This is the simpler model that takes the count, lncRNA, time and condition as input
-simpler_model <- model_sum_lmer(cor_model, 20)
+simpler_model <- model_sum_lmer(cor_model, 61)
 
 #saveRDS(simpler_model, "data/models/seqwrap_generated_models/filtered_simpler_training_model.RDS")
 
@@ -341,9 +347,9 @@ cor
 
 #GABRGI is a gene throwing errors in the model
 #this removes it from the model summaries
-  x <- bind_rows(within(cor_model2$summaries, rm(GABRG1))) %>%
+  x <- bind_rows(within(cor_model$summaries, rm(GAL, RNASET2))) %>%
   subset(!coef == "(Intercept)") %>%
-  mutate(target = rep(names(within(cor_model2$summaries, rm(GABRG1))), each = 89))%>%
+  mutate(target = rep(names(within(cor_model$summaries, rm(GAL, RNASET2))), each = 60))%>%
 
   mutate(adj.p = p.adjust(Pr...t.., method = "fdr"),
          log2fc = Estimate/log(2),
@@ -358,7 +364,8 @@ cor
   #save this model
 #saveRDS(x, "data/models/seqwrap_generated_models/filtered_interaction_training_correlation_model.RDS")
   
-  
+
+#saveRDS(x, "data/models/seqwrap_generated_models/trained_untrained_midexercise/filtered_less_stringent_simple_correlation_model.RDS")
 # 
 # x <- unlist(cor_model2$summaries$GABRG1)
 # 
