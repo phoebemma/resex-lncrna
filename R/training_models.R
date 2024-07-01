@@ -262,7 +262,7 @@ cor_model <- seqwrap(fitting_fun = lmerTest::lmer,
                      cores = ncores-2)
 
 
-saveRDS(cor_model, "data/models/seqwrap_generated_models/interaction_model_arg4.RDS")
+#saveRDS(cor_model, "data/models/seqwrap_generated_models/interaction_model_arg4.RDS")
 
 length(unique(met_df$lncRNA))
 #the one below was obtained from the less stringent filtering based on logfc changes
