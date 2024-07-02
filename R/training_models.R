@@ -139,7 +139,7 @@ unique(training_model_filt$coef)
 ##This is done when loading the already run model
 
 
-#training_model_filt <- readRDS("data/models/seqwrap_generated_models/filtered_training_model.RDS")
+training_model_filt <- readRDS("data/models/seqwrap_generated_models/filtered_training_model.RDS")
 
 
 
@@ -262,7 +262,11 @@ cor_model <- seqwrap(fitting_fun = lmerTest::lmer,
                      cores = ncores-2)
 
 
+<<<<<<< HEAD
 #saveRDS(cor_model, "data/models/seqwrap_generated_models/simple_model_arg3.RDS")
+=======
+#saveRDS(cor_model, "data/models/seqwrap_generated_models/interaction_model_arg4.RDS")
+>>>>>>> 6d1befa3dda8113d6f4bdc8a84ea807c3e5b4649
 
 length(unique(met_df$lncRNA))
 #the one below was obtained from the less stringent filtering based on logfc changes

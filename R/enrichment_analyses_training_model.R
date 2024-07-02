@@ -25,7 +25,11 @@ genes <- readRDS("data/protein_coding_genes_FPKM.RDS")
 
 
 
+<<<<<<< HEAD
 ego_df <- enrichGO(gene = unique(str_cor_t3$target),
+=======
+ego_df <- enrichGO(gene = unique(simp_mod_sum$target),
+>>>>>>> 6d1befa3dda8113d6f4bdc8a84ea807c3e5b4649
                    universe = genes$gene_name,
                    keyType = "SYMBOL",
                    OrgDb = org.Hs.eg.db,
