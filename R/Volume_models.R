@@ -78,6 +78,247 @@ volume_model_filt <- filt_model_parameters(mod_eval, mod_sum)%>%
 
 
 
+volume_model_filt <- readRDS("data/models/seqwrap_generated_models/filtered_volume_model.RDS")
+
+
+ct_metadata <- readRDS("data/contratrain_metadata.RDS")
+
+
+unique(volume_model_filt$coef)
+
+#extract those differentially expressed by condition 3 at midexercise
+cond3_t3 <- volume_model_filt %>%
+  dplyr::filter(coef == "conditionset3:timet3")%>%
+  dplyr::filter(log2fc >= 1 | log2fc <= -1)
+
+
+#load full dataset in fpkm
+genes_fpkm <- readRDS("data/Ct_genes_FPKM.RDS")%>%
+  #drop gene_id, select gene_name and any of the sample names that match sample name in metadata
+  dplyr::select(gene_name, any_of(ct_metadata$seq_sample_id))
+
+#load the mRNA data
+mRNA_genes_fpkm <- readRDS("data/protein_coding_genes_FPKM.RDS")
+
+mRNA_genes_fpkm<- mRNA_genes_fpkm %>%
+  dplyr::filter(rowSums(mRNA_genes_fpkm[,-1]) != 0) %>%
+  dplyr::select(gene_name, any_of(ct_metadata$seq_sample_id))
+
+
+#extract the lncs of interest at mid exercise
+lncs_of_int <- genes_fpkm[genes_fpkm$gene_name %in% cond3_t3$target,]
+
+library(ggrepel)
+library(lme4)
+library(lmerTest)
+
+
+
+#extract the metadata and merge to the lncs of interest
+met_df <- lncs_of_int %>%
+  pivot_longer(cols = -("gene_name"),
+               names_to = "seq_sample_id",
+               values_to = "counts") %>%
+  inner_join(ct_metadata, by = "seq_sample_id") %>%
+  #rename the gene_name to lncRNA to avoid mixing up with the mRNA genenames
+  dplyr::rename(lncRNA = gene_name)
+
+
+#initialise argument
+args<- list(formula = y ~  counts + lncRNA + time + condition  + (1|participant))    
+
+
+# Build the correlation model
+
+vol_cor_model <- seqwrap(fitting_fun = lmerTest::lmer,
+                     arguments = args,
+                     data = mRNA_genes_fpkm,
+                     metadata = met_df,
+                     samplename = "seq_sample_id",
+                     summary_fun = sum_fun_lmer,
+                     eval_fun = eval_mod_lmer,
+                     exported = list(),
+                     save_models = FALSE,
+                     return_models = FALSE,
+                     
+                     #subset = 1:10,
+                     cores = ncores-2)
+
+
+
+vol_cor_model$summaries[[1]]
+
+
+
+
+
+
+#determine the models that raised errors
+temp <-  vol_cor_model$errors%>%
+  
+  mutate(err = unlist(errors_fit)) %>%
+  
+  
+  
+  pivot_longer(cols = errors_fit:warn_eval) %>%
+  
+  filter(name == "err_sum") %>%
+  print()
+
+unlist(temp$value)
+
+
+
+#Extract the models that gave null values in midexercise condition 3
+
+#bind the model evaluations in one row, excluding those with null values
+vol_mod_ev <- bind_rows(within(vol_cor_model$evaluations, rm(ADM, BARHL2, BFSP2,
+                                                             C1orf141, CFHR5, CST1, EGR4,
+                                                             GMPR2, H3C12, IREB2, KRT85,
+                                                             MAPK8, MROH5, OR1A1, OR51M1, 
+                                                             OR51T1, OR7E24, OR8G3P, PDHA2,
+                                                             PRAMEF1, PSG9,SERPINA9,SH2D1A,
+                                                             RNASE9, TMEM190,ZAR1L, ZIC5)))%>%
+  mutate(target = names(within(vol_cor_model$evaluations, rm(ADM, BARHL2, BFSP2,
+                                                             C1orf141, CFHR5, CST1, EGR4,
+                                                             GMPR2, H3C12, IREB2, KRT85,
+                                                             MAPK8, MROH5, OR1A1, OR51M1, 
+                                                             OR51T1, OR7E24, OR8G3P, PDHA2,
+                                                             PRAMEF1, PSG9,SERPINA9,SH2D1A,
+                                                             RNASE9, TMEM190,ZAR1L, ZIC5))))
+
+#hist(vol_mod_ev $pval.unif, main = "distribution of p unif values log converted dependent y")
+
+
+vol_mod_SUM<- bind_rows(within(vol_cor_model$summaries, rm(ADM, BARHL2, BFSP2,
+                                                     C1orf141, CFHR5, CST1, EGR4,
+                                                     GMPR2, H3C12, IREB2, KRT85,
+                                                     MAPK8, MROH5, OR1A1, OR51M1, 
+                                                     OR51T1, OR7E24, OR8G3P, PDHA2,
+                                                     PRAMEF1, PSG9,SERPINA9,SH2D1A,
+                                                     RNASE9, TMEM190,ZAR1L, ZIC5))) %>%
+  subset(!coef == "(Intercept)") %>%
+  mutate(target = rep(names(within(vol_cor_model$summaries, rm(ADM, BARHL2, BFSP2,
+                                                          C1orf141, CFHR5, CST1, EGR4,
+                                                          GMPR2, H3C12, IREB2, KRT85,
+                                                          MAPK8, MROH5, OR1A1, OR51M1, 
+                                                          OR51T1, OR7E24, OR8G3P, PDHA2,
+                                                          PRAMEF1, PSG9,SERPINA9,SH2D1A,
+                                                          RNASE9, TMEM190,ZAR1L, ZIC5))), each = 17)) %>%
+  mutate(adj.p = p.adjust(Pr...t.., method = "fdr"),
+       log2fc = Estimate/log(2),
+
+       fcthreshold = if_else(abs(log2fc) > 0.5, "s", "ns")) %>%
+  filter(fcthreshold == "s" & adj.p <= 0.05 )
+
+hist(vol_mod_SUM$adj.p, main = "adjusted p vlaues distribution in coexpressed mRNAs set3 mid exercise")
+
+ggplot(data = vol_mod_SUM, aes(x = coef)) +
+  geom_bar()+
+  ggtitle("distribution of coefs of coexpressed proteins at midexercise set3")
+
+
+lnc_x <- vol_mod_SUM  %>%
+  filter(coef == "lncRNALINC00310")
+
+time3 <- vol_mod_SUM  %>%
+  filter(coef == "timet3")
+
+
+
+ego_df <- enrichGO(gene = time3$target,
+                   universe = genes$gene_name,
+                   keyType = "SYMBOL",
+                   OrgDb = org.Hs.eg.db,
+                   ont = "BP",
+                   pAdjustMethod = "BH",
+                   qvalueCutoff = 0.05,
+                   readable = T)
+
+
+### It is different when the gene expression data is used as universe, versus when it isnt
+cluster_summary <- data.frame(ego_df)
+
+dotplot(ego_df, showCategory = 15,
+        
+        font.size = 5, title = "15 top biological processes in  protein-coding genes coexpressed postexercise") +
+  theme(axis.text = element_text(size = 9), axis.text.y = element_text(size = 7), axis.title.x = element_text(size = 10))
+
+
+
+
+length(unique(str_cor_t3$target))
+
+
+
+
+#get the entrezid of the unique genes
+entrez_ids <- bitr(time3$target, "SYMBOL", "ENTREZID", org.Hs.eg.db)
+
+
+#pathway overrepresentation analyses
+kegg_df <- enrichKEGG(gene = entrez_ids$ENTREZID,
+                      organism = "hsa",
+                      keyType = "kegg",
+                      # OrgDb = org.Hs.eg.db, 
+                      #ont = "MF", 
+                      pAdjustMethod = "BH", 
+                      qvalueCutoff = 0.05)
+
+#kegg_summary <- data.frame(kegg_df)
+
+
+barplot(kegg_df, showCategory = 30, title = " enriched pathways in  protein coding genes postexercise")+
+  theme(axis.text = element_text(size = 9), axis.text.y = element_text(size = 7), axis.title.x = element_text(size = 10))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

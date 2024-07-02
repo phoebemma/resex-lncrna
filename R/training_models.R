@@ -210,12 +210,14 @@ genes_fpkm <- readRDS("data/Ct_genes_FPKM.RDS")%>%
 
 mRNA_genes_fpkm <- genes_fpkm[genes_fpkm$gene_name %in% genes_TPM$gene_name,]
 
+#saveRDS(mRNA_genes_fpkm, "data/protein_coding_genes_FPKM.RDS")
+
 mRNA_genes_fpkm<- mRNA_genes_fpkm %>%
   dplyr::filter(rowSums(mRNA_genes_fpkm[,-1]) != 0)
 
 
 #extract the lncs of interest at mid exercise
-lncs_of_int <- genes_fpkm[genes_fpkm$gene_name %in% t4$target,]
+lncs_of_int <- genes_fpkm[genes_fpkm$gene_name %in% t3$target,]
 
 
 
@@ -235,12 +237,18 @@ met_df <- lncs_of_int %>%
 args<- list(formula = y ~  lncRNA + lncRNA:counts + lncRNA:time + lncRNA:condition + (1|participant)) 
                                                                             
                                                                             
-args1<- list(formula = y ~  counts + lncRNA + time + condition  + (1|participant))                                                                  
+args1<- list(formula = y ~  counts + lncRNA + time + condition  + (1|participant))    
+
+args2<- list(formula = log(y + 0.1) ~  counts + lncRNA + time + condition  + (1|participant)) 
+
+args3<- list(formula = y ~  lncRNA:counts + time + condition  + (1|participant))  
+
+args4 <- list(formula = y ~  lncRNA:counts + lncRNA:time + lncRNA:condition + (1|participant)) 
 
 # Build the correlation model
 
 cor_model <- seqwrap(fitting_fun = lmerTest::lmer,
-                     arguments = args1,
+                     arguments = args4,
                      data = mRNA_genes_fpkm,
                      metadata = met_df,
                      samplename = "seq_sample_id",
@@ -253,7 +261,8 @@ cor_model <- seqwrap(fitting_fun = lmerTest::lmer,
                      #subset = 1:10,
                      cores = ncores-2)
 
-#saveRDS(cor_model, "data/models/seqwrap_generated_models/simpler_training_correlation_model.RDS")
+
+#saveRDS(cor_model, "data/models/seqwrap_generated_models/simple_model_arg3.RDS")
 
 length(unique(met_df$lncRNA))
 #the one below was obtained from the less stringent filtering based on logfc changes
@@ -283,6 +292,7 @@ cor_model$summaries[[1]]
 
 cor_model2$summaries[[1]]
 
+#saveRDS(cor_model, "data/models/seqwrap_generated_models/trained_untrained_midexercise/log_simple_stringent_training_model.RDS")
 #saveRDS(cor_model2, "data/models/seqwrap_generated_models/interaction_training_model.RDS")
 #saveRDS(cor_model2, "data/models/seqwrap_generated_models/t4_interaction_less_stringent_training_model.RDS")
 #cor_model$errors$err_sum
@@ -347,9 +357,9 @@ cor
 
 #GABRGI is a gene throwing errors in the model
 #this removes it from the model summaries
-  x <- bind_rows(within(cor_model$summaries, rm(GAL, RNASET2))) %>%
+  x <- bind_rows(within(cor_model$summaries, rm(NUDT12, PPIL6, RAG2))) %>%
   subset(!coef == "(Intercept)") %>%
-  mutate(target = rep(names(within(cor_model$summaries, rm(GAL, RNASET2))), each = 60))%>%
+  mutate(target = rep(names(within(cor_model$summaries, rm(NUDT12, PPIL6, RAG2))), each = 19))%>%
 
   mutate(adj.p = p.adjust(Pr...t.., method = "fdr"),
          log2fc = Estimate/log(2),
@@ -361,6 +371,7 @@ cor
   
   unique(x$coef)
   
+#saveRDS(x, "data/models/seqwrap_generated_models/trained_untrained_midexercise/filtered_log_simple_stringent_training_model.RDS")
   #save this model
 #saveRDS(x, "data/models/seqwrap_generated_models/filtered_interaction_training_correlation_model.RDS")
   
