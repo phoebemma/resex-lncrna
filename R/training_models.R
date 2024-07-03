@@ -302,13 +302,146 @@ cor_model2$summaries[[1]]
 #cor_model$errors$err_sum
 ### Plotiing one gene vs lncRNA
 
-genes_fpkm %>%
+temp_dat <- genes_fpkm %>%
   filter(gene_name == "TSPAN6") %>%
   pivot_longer(cols = starts_with("X"), names_to = "seq_sample_id" ) %>%
-  inner_join(met_df %>%
-               filter(lncRNA == "LANCL1-AS1")) %>%
-  ggplot(aes(value, counts)) + geom_point()
+  inner_join(met_df) 
+
+  
+  
+  temp_dat %>%
+    filter(lncRNA == "FAM86JP") %>%
+    
+    ggplot(aes(value, log(counts))) + geom_point() + 
+    facet_wrap(~ time + condition)
+
+LR <- unique(temp_dat$lncRNA)
+results <- list()
+
+ 
+for(i in seq_along(LR)) {
+  
+  mx1 <- lme(log(counts + 0.1) ~ value + time + condition, 
+           random = list(participant = ~ 1), 
+           data = filter(temp_dat, lncRNA == LR[i]),
+           control = lmeControl(maxIter = 200, 
+                                opt = 'optim'),
+           weights = varIdent(form = ~ 1|lncRNA)) 
+  
+  mx2 <- lme(log(value + 0.1) ~ counts + time + condition, 
+             random = list(participant = ~ 1), 
+             data =  filter(temp_dat, lncRNA == LR[i]),
+             control = lmeControl(maxIter = 200, 
+                                  opt = 'optim'),
+             weights = varIdent(form = ~ 1|lncRNA)) 
+  
+  ## Summarize models
+  results[[i]] <- bind_rows(data.frame(coef(summary(mx1))) %>%
+    rownames_to_column(var = "param") %>%
+    mutate(lncRNA = LR[i]), 
+    data.frame(coef(summary(mx2))) %>%
+      rownames_to_column(var = "param") %>%
+      mutate(lncRNA = LR[i]))
+  
+}
+
+
+
+ 
+  
+
+m1 <- lme(log(counts + 0.1) ~ value:lncRNA + time + condition, 
+          random = list(participant = ~ 1), 
+          data = temp_dat,
+          control = lmeControl(maxIter = 200, 
+                               opt = 'optim'),
+          weights = varIdent(form = ~ 1|lncRNA)) 
+
+m2 <- lme(log(value + 0.1) ~ counts:lncRNA + time + condition, 
+          random = list(participant = ~ 1), 
+          data = temp_dat,
+          control = lmeControl(maxIter = 200, 
+                               opt = 'optim'),
+          weights = varIdent(form = ~ 1|lncRNA)) 
+
+
+
+
+bind_rows(results) %>%
+  filter(param %in% c("value", "counts")) %>%
+  select(param, lncRNA, Value = Value) %>%
+  pivot_wider(names_from = param, 
+              values_from = Value) %>%
+  inner_join(
+    
+    data.frame(coef(summary(m1))) %>%
+          rownames_to_column(var = "param") %>%
+          filter(grepl("value:", param)) %>%
+          select(param, lnc_dep = Value) %>%
+          mutate(lncRNA = gsub("value:", "", param)) %>%
+    select(lncRNA, lnc_dep) %>%
+    mutate(lncRNA = gsub("lncRNA", "", lncRNA)) %>%
+          inner_join(data.frame(coef(summary(m2))) %>%
+                       rownames_to_column(var = "param") %>%
+                       filter(grepl("counts:", param)) %>%
+                       select(param, mrna_dep = Value) %>%
+                       mutate(lncRNA = gsub("counts:", "", param)) %>%
+                       select(lncRNA, mrna_dep) %>%
+                       mutate(lncRNA = gsub("lncRNA", "", lncRNA)))) %>%
+   
+  ggplot(aes(value, partially_pooled)) + geom_point()
+  
+  
+
+
+
+
+
+temp_dat
+
+
+
+ %>%
+  ggplot(aes(lnc_dep, mrna_dep)) + geom_point()
+
+
+
+
+
+
+summary(m)  
+plot(m)
+  
+
+eval_mod_lmer(m)
+
+library(nlme)
+mx <- lme(log(counts + 0.1) ~ value:lncRNA + time * condition, 
+          random = list(participant = ~ 1), 
+          data = temp_dat,
+          control = lmeControl(maxIter = 200, 
+                               opt = 'optim'),
+          weights = varIdent(form = ~ 1|lncRNA)) 
+
+summary(mx)  
+plot(mx)
+
+data.frame(coef(summary(mx))) %>%
+  rownames_to_column(var = "param") %>%
+  filter(grepl("value:", param)) %>%
+  select(param, lme = Value) %>%
+  inner_join(data.frame(coef(summary(m))) %>%
+  rownames_to_column(var = "param") %>%
+  filter(grepl("value:", param)) %>%
+  select(param, lmer = Estimate)) %>%
+  ggplot(aes(lme, lmer)) + geom_point() + geom_abline(intercept = 0, slope = 1)
+
+
+data.frame(coef(summary(mx))) %>%
+  rownames_to_column(var = "param") %>%
+  filter(grepl("value:", param)) %>%
   print()
+
 
 
 
