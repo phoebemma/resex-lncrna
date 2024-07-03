@@ -221,6 +221,10 @@ vol_mod_ev <- bind_rows(within(vol_cor_model$evaluations, rm(ADM, BARHL2, BFSP2,
 #hist(vol_mod_ev $pval.unif, main = "distribution of p unif values log converted dependent y")
 
 
+
+tmem <- lncRNAS %>%
+  filter(gene_name == "TMEM9B-AS1")
+
 vol_mod_SUM<- bind_rows(within(vol_cor_model$summaries, rm(ADM, BARHL2, BFSP2, C1orf141, CFHR5, 
                                                            CST1, EGR4, GMPR2,  H3C12,IREB2, KRT85, 
                                                            MAPK8, MROH5,  OR1A1,  OR51M1, OR51T1, 
