@@ -169,13 +169,13 @@ sum_fun <- function(x){
 sum_fun_lmer <- function(x){
   
   # Get name from x
-  #geneid <- names(x)
+  # geneid <- names(x)
   
   cond_effects <- data.frame(cbind(data.frame(coef = rownames(coef(summary(x))))),
                                    coef(summary(x)), 
                                    
                                    row.names = NULL) #%>%
-    #mutate(geneid = geneid)
+  #  mutate(geneid = geneid)
   
   return(cond_effects)
 }

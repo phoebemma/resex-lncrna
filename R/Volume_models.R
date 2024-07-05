@@ -5,7 +5,12 @@
 source("R/Trainome_functions.R")
 
 
-
+library(clusterProfiler)
+library(org.Hs.eg.db)
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+library(marginaleffects)
 
 #load lncRNAs counts
 
@@ -81,6 +86,7 @@ volume_model_filt <- filt_model_parameters(mod_eval, mod_sum)%>%
 volume_model_filt <- readRDS("data/models/seqwrap_generated_models/filtered_volume_model.RDS")
 
 
+
 ct_metadata <- readRDS("data/contratrain_metadata.RDS")
 
 
@@ -125,11 +131,53 @@ met_df <- lncs_of_int %>%
 
 
 #initialise argument
-args<- list(formula = y ~  counts + lncRNA + time + condition  + (1|participant))    
+args <- list(formula = y ~  counts + time + condition  + (1|participant))    
+
+summary_results <- list()
+evaluations <- list()
+
+LR <- unique(met_df$lncRNA)
+
+for(i in seq_along(LR)) {
+  
+  vol_cor_model <- seqwrap(fitting_fun = lmerTest::lmer,
+                           arguments = args,
+                           data = mRNA_genes_fpkm,
+                           metadata = filter(met_df, lncRNA == LR[i]),
+                           samplename = "seq_sample_id",
+                           summary_fun = sum_fun_lmer,
+                           eval_fun = eval_mod_lmer,
+                           exported = list(),
+                           save_models = FALSE,
+                           return_models = FALSE,
+                           
+                           subset = 1:10,
+                           cores = ncores-2)
+  
+  # Add names for each 
+  
+  geneids <- names(vol_cor_model$summaries)
+  
+  evaluations[[i]] <- bind_rows(vol_cor_model$evaluations) %>%
+    mutate(geneid = geneids) %>%
+    mutate(lncRNA = LR[i])
+  
+  
+  summary_results[[i]] <- bind_rows(vol_cor_model$summaries) %>%
+    mutate(geneid = rep(geneids, each = 6)) %>%
+    mutate(lncRNA = LR[i])
+  
+
+  
+}
+
+bind_rows(summary_results)
+
 
 
 # Build the correlation model
 
+<<<<<<< HEAD
 vol_cor_model <- seqwrap(fitting_fun = lmerTest::lmer,
                      arguments = args,
                      data = mRNA_genes_fpkm,
@@ -143,11 +191,14 @@ vol_cor_model <- seqwrap(fitting_fun = lmerTest::lmer,
                      
                      #subset = 1:10,
                      cores = ncores-2)
+=======
+
+>>>>>>> f600e6c860a7a76cb4e3119df72dd3cf55ea5f29
 
 #saveRDS(vol_cor_model, "data/seqwrap_generated_models/conditions_models/conditions_set3_correlation.RDS")
 #saveRDS(vol_cor_model, "data/seqwrap_generated_models/conditions_models/condition_set6_t3_correlation.RDS")
 vol_cor_model$summaries[[1]]
-
+vol_cor_model <- readRDS("data/seqwrap_generated_models/conditions_models/conditions_set3_t3_correlation.RDS")
 
 
 
@@ -172,6 +223,7 @@ unlist(temp$value)
 #Extract the models that gave null values in midexercise condition 3
 
 #bind the model evaluations in one row, excluding those with null values
+<<<<<<< HEAD
 vol_mod_ev <- bind_rows(within(vol_cor_model$evaluations, rm( BARHL2, BFSP2,
                                                              C1orf141, CFHR5, CST1, EGR4,
                                                               H3C12, KRT85, MROH5, OR1A1, OR51M1, 
@@ -184,10 +236,23 @@ vol_mod_ev <- bind_rows(within(vol_cor_model$evaluations, rm( BARHL2, BFSP2,
                                                              OR51T1, OR7E24, OR8G3P, PDHA2,
                                                              PRAMEF1, PSG9,SERPINA9,
                                                              RNASE9, TMEM190,ZAR1L, ZIC5))))
+=======
+vol_mod_ev <- bind_rows(within(vol_cor_model$evaluations, rm(ADM, BARHL2, BFSP2, C1orf141, CFHR5, 
+                                                             CST1, EGR4, GMPR2,  H3C12,IREB2, KRT85, 
+                                                             MAPK8, MROH5,  OR1A1,  OR51M1, OR51T1, 
+                                                             OR7E24, OR8G3P, PDHA2, PRAMEF1, PSG9,SERPINA9,
+                                                             SH2D1A,  RNASE9, TMEM190,ZAR1L, ZIC5)))%>%
+  mutate(target = names(within(vol_cor_model$evaluations, rm(ADM, BARHL2, BFSP2, C1orf141, CFHR5, 
+                                                             CST1, EGR4, GMPR2,  H3C12,IREB2, KRT85, 
+                                                             MAPK8, MROH5,  OR1A1,  OR51M1, OR51T1, 
+                                                             OR7E24, OR8G3P, PDHA2, PRAMEF1, PSG9,SERPINA9,
+                                                             SH2D1A,  RNASE9, TMEM190,ZAR1L, ZIC5))))
+>>>>>>> f600e6c860a7a76cb4e3119df72dd3cf55ea5f29
 
 #hist(vol_mod_ev $pval.unif, main = "distribution of p unif values log converted dependent y")
 
 
+<<<<<<< HEAD
 vol_mod_SUM<- bind_rows(within(vol_cor_model$summaries, rm(BARHL2, BFSP2,
                                                            C1orf141, CFHR5, CST1, EGR4,
                                                            H3C12, KRT85, MROH5, OR1A1, OR51M1, 
@@ -201,13 +266,34 @@ vol_mod_SUM<- bind_rows(within(vol_cor_model$summaries, rm(BARHL2, BFSP2,
                                                                OR51T1, OR7E24, OR8G3P, PDHA2,
                                                                PRAMEF1, PSG9,SERPINA9,
                                                                RNASE9, TMEM190,ZAR1L, ZIC5))), each = 27)) %>%
+=======
+
+tmem <- lncRNAS %>%
+  filter(gene_name == "TMEM9B-AS1")
+
+vol_mod_SUM<- bind_rows(within(vol_cor_model$summaries, rm(ADM, BARHL2, BFSP2, C1orf141, CFHR5, 
+                                                           CST1, EGR4, GMPR2,  H3C12,IREB2, KRT85, 
+                                                           MAPK8, MROH5,  OR1A1,  OR51M1, OR51T1, 
+                                                           OR7E24, OR8G3P, PDHA2, PRAMEF1, PSG9,SERPINA9,
+                                                           SH2D1A,  RNASE9, TMEM190,ZAR1L, ZIC5))) %>%
+  subset(!coef == "(Intercept)") %>%
+  mutate(target = rep(names(within(vol_cor_model$summaries, rm(ADM, BARHL2, BFSP2, C1orf141, CFHR5, 
+                                                               CST1, EGR4, GMPR2,  H3C12,IREB2, KRT85, 
+                                                               MAPK8, MROH5,  OR1A1,  OR51M1, OR51T1, 
+                                                               OR7E24, OR8G3P, PDHA2, PRAMEF1, PSG9,SERPINA9,
+                                                               SH2D1A,  RNASE9, TMEM190,ZAR1L, ZIC5))), each = 17)) %>%
+>>>>>>> f600e6c860a7a76cb4e3119df72dd3cf55ea5f29
   mutate(adj.p = p.adjust(Pr...t.., method = "fdr"),
        log2fc = Estimate/log(2),
 
        fcthreshold = if_else(abs(log2fc) > 0.5, "s", "ns")) %>%
   filter(fcthreshold == "s" & adj.p <= 0.05 )
 
+<<<<<<< HEAD
 #saveRDS(vol_mod_SUM, "data/seqwrap_generated_models/conditions_models/filtered_conditions_set6_t3_correlation.RDS")
+=======
+#saveRDS(vol_mod_SUM, "data/seqwrap_generated_models/conditions_models/filtered_conditions_set3_t3_correlation.RDS")
+>>>>>>> f600e6c860a7a76cb4e3119df72dd3cf55ea5f29
 
 hist(vol_mod_SUM$adj.p, main = "adjusted p vlaues distribution in coexpressed mRNAs set6 mid exercise")
 
@@ -221,6 +307,7 @@ lnc_x <- vol_mod_SUM  %>%
 
 time3 <- vol_mod_SUM  %>%
   filter(coef == "timet3")
+
 
 
 

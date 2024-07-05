@@ -72,3 +72,5 @@ DiagrammeR::grViz("digraph {
 ### Discussion
 
 The lncRNA expression of biopsies from the vastus lateralis muscle of young individuals who participated in the Contratrain training exercise were compared and analysed to detect their differential expression based on exercise condition and time, as well as the mRNA genes possibly regulated by the lncRNAs
+
+@
