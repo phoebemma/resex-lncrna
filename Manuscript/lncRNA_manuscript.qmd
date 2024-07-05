@@ -33,9 +33,13 @@ Study design , sample preparation and RNA sequencing were done as described by H
 
 ### Models and visualization
 
-To compare the influence of the effective library size of all the genes, versus only those annotated as lncRNAs, two types of negative binomial regression models were built using Seq_Wrapper, an R package developed in-house, one normalized using lncRNAs alone, and another using the full genes counts. All genes annotated as lncRNA by the Ensemble database in BioMart were extracted
+To compare the influence of the effective library size of all the genes, versus only those annotated as lncRNAs, two types of negative binomial regression models were built using Seqwrap, an R package developed in-house, one normalized using lncRNAs alone, and another using the full genes counts. All genes annotated as lncRNA by the Ensemble database in BioMart were extracted
 
 Two models were built, one to determine the effect of training by grouping the participants' legs into trained and untrained. The other model was designed to investigate the effect of the different exercise conditions , that is set 6, set 3 and set 0. lncRNAs with p values less than or below 0.05, and log fold 2 change above 0.5 were extracted
+
+### Coexpression analyses
+
+Due to the nested ature of the data, a model was used to evaluate coexpression mRNA coding genes. The model took into cognizance the exercise time and condition
 
 ```{r Steps_analyses, fig.cap="Flow diagram sowing steps in analysis", echo=FALSE}
 formula1 = y ~  efflibsize + condition*time +(1|participant)          

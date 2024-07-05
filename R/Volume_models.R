@@ -88,7 +88,7 @@ unique(volume_model_filt$coef)
 
 #extract those differentially expressed by condition 3 at midexercise
 cond3_t3 <- volume_model_filt %>%
-  dplyr::filter(coef == "conditionset3:timet3")%>%
+  dplyr::filter(coef == "conditionset6:timet3")%>%
   dplyr::filter(log2fc >= 1 | log2fc <= -1)
 
 
@@ -144,8 +144,8 @@ vol_cor_model <- seqwrap(fitting_fun = lmerTest::lmer,
                      #subset = 1:10,
                      cores = ncores-2)
 
-
-
+#saveRDS(vol_cor_model, "data/seqwrap_generated_models/conditions_models/conditions_set3_correlation.RDS")
+#saveRDS(vol_cor_model, "data/seqwrap_generated_models/conditions_models/condition_set6_t3_correlation.RDS")
 vol_cor_model$summaries[[1]]
 
 
@@ -172,52 +172,50 @@ unlist(temp$value)
 #Extract the models that gave null values in midexercise condition 3
 
 #bind the model evaluations in one row, excluding those with null values
-vol_mod_ev <- bind_rows(within(vol_cor_model$evaluations, rm(ADM, BARHL2, BFSP2,
+vol_mod_ev <- bind_rows(within(vol_cor_model$evaluations, rm( BARHL2, BFSP2,
                                                              C1orf141, CFHR5, CST1, EGR4,
-                                                             GMPR2, H3C12, IREB2, KRT85,
-                                                             MAPK8, MROH5, OR1A1, OR51M1, 
+                                                              H3C12, KRT85, MROH5, OR1A1, OR51M1, 
                                                              OR51T1, OR7E24, OR8G3P, PDHA2,
-                                                             PRAMEF1, PSG9,SERPINA9,SH2D1A,
+                                                             PRAMEF1, PSG9,SERPINA9,
                                                              RNASE9, TMEM190,ZAR1L, ZIC5)))%>%
-  mutate(target = names(within(vol_cor_model$evaluations, rm(ADM, BARHL2, BFSP2,
+  mutate(target = names(within(vol_cor_model$evaluations, rm(BARHL2, BFSP2,
                                                              C1orf141, CFHR5, CST1, EGR4,
-                                                             GMPR2, H3C12, IREB2, KRT85,
-                                                             MAPK8, MROH5, OR1A1, OR51M1, 
+                                                             H3C12, KRT85, MROH5, OR1A1, OR51M1, 
                                                              OR51T1, OR7E24, OR8G3P, PDHA2,
-                                                             PRAMEF1, PSG9,SERPINA9,SH2D1A,
+                                                             PRAMEF1, PSG9,SERPINA9,
                                                              RNASE9, TMEM190,ZAR1L, ZIC5))))
 
 #hist(vol_mod_ev $pval.unif, main = "distribution of p unif values log converted dependent y")
 
 
-vol_mod_SUM<- bind_rows(within(vol_cor_model$summaries, rm(ADM, BARHL2, BFSP2,
-                                                     C1orf141, CFHR5, CST1, EGR4,
-                                                     GMPR2, H3C12, IREB2, KRT85,
-                                                     MAPK8, MROH5, OR1A1, OR51M1, 
-                                                     OR51T1, OR7E24, OR8G3P, PDHA2,
-                                                     PRAMEF1, PSG9,SERPINA9,SH2D1A,
-                                                     RNASE9, TMEM190,ZAR1L, ZIC5))) %>%
+vol_mod_SUM<- bind_rows(within(vol_cor_model$summaries, rm(BARHL2, BFSP2,
+                                                           C1orf141, CFHR5, CST1, EGR4,
+                                                           H3C12, KRT85, MROH5, OR1A1, OR51M1, 
+                                                           OR51T1, OR7E24, OR8G3P, PDHA2,
+                                                           PRAMEF1, PSG9,SERPINA9,
+                                                           RNASE9, TMEM190,ZAR1L, ZIC5))) %>%
   subset(!coef == "(Intercept)") %>%
-  mutate(target = rep(names(within(vol_cor_model$summaries, rm(ADM, BARHL2, BFSP2,
-                                                          C1orf141, CFHR5, CST1, EGR4,
-                                                          GMPR2, H3C12, IREB2, KRT85,
-                                                          MAPK8, MROH5, OR1A1, OR51M1, 
-                                                          OR51T1, OR7E24, OR8G3P, PDHA2,
-                                                          PRAMEF1, PSG9,SERPINA9,SH2D1A,
-                                                          RNASE9, TMEM190,ZAR1L, ZIC5))), each = 17)) %>%
+  mutate(target = rep(names(within(vol_cor_model$summaries, rm(BARHL2, BFSP2,
+                                                               C1orf141, CFHR5, CST1, EGR4,
+                                                               H3C12, KRT85, MROH5, OR1A1, OR51M1, 
+                                                               OR51T1, OR7E24, OR8G3P, PDHA2,
+                                                               PRAMEF1, PSG9,SERPINA9,
+                                                               RNASE9, TMEM190,ZAR1L, ZIC5))), each = 27)) %>%
   mutate(adj.p = p.adjust(Pr...t.., method = "fdr"),
        log2fc = Estimate/log(2),
 
        fcthreshold = if_else(abs(log2fc) > 0.5, "s", "ns")) %>%
   filter(fcthreshold == "s" & adj.p <= 0.05 )
 
-hist(vol_mod_SUM$adj.p, main = "adjusted p vlaues distribution in coexpressed mRNAs set3 mid exercise")
+#saveRDS(vol_mod_SUM, "data/seqwrap_generated_models/conditions_models/filtered_conditions_set6_t3_correlation.RDS")
+
+hist(vol_mod_SUM$adj.p, main = "adjusted p vlaues distribution in coexpressed mRNAs set6 mid exercise")
 
 ggplot(data = vol_mod_SUM, aes(x = coef)) +
   geom_bar()+
-  ggtitle("distribution of coefs of coexpressed proteins at midexercise set3")
+  ggtitle("distribution of coefs of coexpressed proteins at midexercise set6")
 
-
+unique(vol_mod_SUM$coef)
 lnc_x <- vol_mod_SUM  %>%
   filter(coef == "lncRNALINC00310")
 
@@ -227,7 +225,7 @@ time3 <- vol_mod_SUM  %>%
 
 
 ego_df <- enrichGO(gene = time3$target,
-                   universe = genes$gene_name,
+                   universe = genes_fpkm$gene_name,
                    keyType = "SYMBOL",
                    OrgDb = org.Hs.eg.db,
                    ont = "BP",
