@@ -117,6 +117,7 @@ plot_volcano <- function(x, y){
     geom_point() + 
     ggtitle(y) +
     theme(axis.text = element_text(size = 15),text = element_text(size = 15))+
+    theme(plot.title = element_text(hjust = 0.5))+
     theme_minimal() +
     geom_text_repel() +
     scale_color_manual(values=c("blue", "black", "red")) +

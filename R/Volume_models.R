@@ -18,6 +18,7 @@ lncRNAS <- readRDS("data/lncRNA_genes.RDS")
 
 #Load metadata file
 
+
 ct_metadata <- readRDS("data/contratrain_metadata.RDS")
 
 
@@ -52,7 +53,7 @@ volume_model<- seqwrap(fitting_fun = glmmTMB::glmmTMB,
 
 
 #save model in data folder
-#saveRDS(volume_model, "data/models/seqwrap_generated_models/volume_model.RDS")
+#saveRDS(volume_model, "data/seqwrap_generated_models/volume_model.RDS")
 
 #get model evaluation using the in-house for combinaing all model evaluations into a table
 mod_eval <- model_eval(volume_model)

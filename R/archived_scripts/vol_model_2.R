@@ -13,7 +13,8 @@ library(tidyverse)
 library(marginaleffects)
 library(seqwrap)
 library(glmmTMB)
-
+library(RColorBrewer)
+library(ggrepel)
 #load lncRNAs counts
 
 lncRNAS <- readRDS("data/lncRNA_genes.RDS")
@@ -28,7 +29,7 @@ ct_metadata_reordered<- ct_metadata %>%
   mutate(condition = factor(condition, levels = c("set3", "set6", "set0")))
 
 #argument for model that looks at the difference between conditions over time
-args<- list(formula = y ~  efflibsize + condition*time +(1|participant),
+args<- list(formula = y ~  efflibsize + condition*time  +(1|participant),
             family = glmmTMB::nbinom2())
 
 
@@ -107,16 +108,33 @@ set6_t3_lncs <- pivot_longer(data = set6_t3_lncs,
 
 set6_t3_lncs <- set6_t3_lncs %>%
   inner_join(ct_metadata %>%
-               filter(condition != "set0"), by = "seq_sample_id")
+               filter(condition != "set0")
+             , 
+               by = "seq_sample_id")
 
 set6_t3_lncs$log_counts <- log(set6_t3_lncs$counts)
 
-ggplot(data = set6_t3_lncs, 
+plot <- ggplot(data = set6_t3_lncs, 
              mapping = aes(x = time,
                            y = gene_name,
                            fill = log_counts
                            )) +
   geom_tile() +
- facet_grid(~ condition)
+  #use the PuOr color palette from colorBrewer
+  scale_fill_distiller(palette = "PuOr")+
+  #scale_fill_gradient()+
+ facet_grid(~ condition)+
+  #set a base for all fonts
+  theme_grey(base_size=8) +
+  #add border white colour of line thickness 0.25
+  geom_tile(colour="white", size=0.25)+
+  ggtitle("Differentially expressed lncRNAs between Set6 and Set3 at Postexercise")+
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave(plot, filename = "./plots/heatmap_DE_set6_vs_set3_at_postexercise.jpeg",
+       width = 8.5, height = 5, quality = 100)
 
+
+
+
+##Coexpression analyses
 
