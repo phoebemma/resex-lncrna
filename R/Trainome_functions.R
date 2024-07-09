@@ -199,7 +199,6 @@ eval_mod <- function(x) {
   return(results)
 }
 
-
 #Evaluation model when using lmer
 eval_mod_lmer <- function(x) {
   
