@@ -194,7 +194,7 @@ mRNA_genes_fpkm<- mRNA_genes_fpkm %>%
 
 
 #extract the lncs of interest 
-lncs_of_int <- lncRNAS[lncRNAS$gene_name %in% t3$target,]
+lncs_of_int <- lncRNAS[lncRNAS$gene_name %in% t4$target,]
 
 
 
@@ -214,7 +214,7 @@ met_df <- lncs_of_int %>%
 length(unique(met_df$lncRNA))
 
 #initialise argument
-args <- list(formula = y ~  counts + time + condition  + sex + (1|participant))    
+args <- list(formula = y ~  counts + time + training_status  + sex + (1|participant))    
 
 
 #Prepare and run a loop using Seqwrap
@@ -237,7 +237,7 @@ for(i in seq_along(LR)) {
                            save_models = FALSE,
                            return_models = FALSE,
                            
-                           #subset = 1:10,
+                           #subset = 1:5,
                            cores = ncores-2)
   
   # Add names for each and remove those with null in output
@@ -254,7 +254,7 @@ for(i in seq_along(LR)) {
   
   
   summary_results[[i]] <- bind_rows(within(vol_cor_model$summaries, rm(excl))) %>%
-    mutate(geneid = rep(geneids, each = 7)) %>%
+    mutate(geneid = rep(geneids, each = 6)) %>%
     mutate(lncRNA =LR[i])
   
   
@@ -268,7 +268,8 @@ x<- bind_rows(summary_results) %>%
 hist(x$Pr...t..)
 hist(x$pval.unif)
 
-#saveRDS(x, "data/seqwrap_generated_models/conditions_models/int_model_set6_postexc_with_set3_as_baseline.RDS")
+#saveRDS(x, "data/seqwrap_generated_models/training_coexpression_models/trained_untrained_post_exercise_correlation.RDS")
+
 
 
 
@@ -280,6 +281,7 @@ hist(x$pval.unif)
 colnames(x)
 length(unique(x$coef))
 
+unique(x$lncRNA)
 x_filt <- x %>%
   subset(coef != "(Intercept)") %>%
   mutate(adj.p = p.adjust(Pr...t.., method = "fdr"),
@@ -288,7 +290,7 @@ x_filt <- x %>%
          fcthreshold = if_else(abs(log2fc) > 0.5, "s", "ns"))%>%
   filter(fcthreshold == "s" & adj.p <= 0.05 & pval.unif >= 0.05 )
 
-#saveRDS(x_filt, "data/seqwrap_generated_models/conditions_models/filtered_int_model_set6_postexc_with_set3_baseline.RDS")
+#saveRDS(x_filt, "data/seqwrap_generated_models/training_coexpression_models/filtered_trained_untrained_postexc_correlation.RDS")
 #filter those completely dependent on the counts
 x_counts <- x_filt %>%
   subset(coef == "counts")
@@ -313,12 +315,12 @@ ego_df <- enrichGO(gene = x_counts$geneid,
 cluster_summary <- data.frame(ego_df)
 
 
-jpeg(filename = "./plots/15_top_BP_set_6_at_postexc.jpeg",
+jpeg(filename = "./plots/15_top_BP_trained_untrained_at_postexc.jpeg",
      width = 850, height = 700, quality = 100)
 
 dotplot(ego_df, showCategory = 15,
         
-        font.size = 5, title = "15 top biological processes coexpressed proteins at set 6 postexercise") +
+        font.size = 5, title = "15 top biological processes coexpressed proteins at  postexercise") +
   theme(axis.text = element_text(size = 15), axis.text.y = element_text(size = 15), axis.title.x = element_text(size = 10))
 dev.off()
 
