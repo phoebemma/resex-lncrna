@@ -1,15 +1,22 @@
 
-#read<- readr::read_csv("data/Contratrain_rsem_genes/1-subj1sample1.genes.results")
-
-#This script builds the model based on training status of participants' legs
-
-#It also filters the model parameters
+#This script is for the analyses of the trained versus untrained individuals
 
 #Load the functions most regularly used
 source("R/Trainome_functions.R")
 
-
-
+#load packages
+library(clusterProfiler)
+library(org.Hs.eg.db)
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+library(marginaleffects)
+library(seqwrap)
+library(glmmTMB)
+library(RColorBrewer)
+library(ggrepel)
+library(lme4)
+library(lmerTest)
 #load lncRNAs counts
 
 lncRNAS <- readRDS("data/lncRNA_genes.RDS")
@@ -37,13 +44,10 @@ ct_metadata <- readRDS("data/contratrain_metadata.RDS")
 
 
 
-#argument for a second model that looks at trained versus untrained
+#argument for a  model that looks at trained versus untrained
 
 args<- list(formula = y ~  efflibsize + training_status*time +(1|participant),
               family = glmmTMB::nbinom2())
-
-
-
 
 
 
@@ -86,10 +90,6 @@ bind_rows(training_model$summaries) %>%
   ggplot(aes(Pr...z..)) + geom_histogram()
 
 
-library(marginaleffects)
-
-#predictions() function calculates the regression-adjusted predicted values for every observation
-pre <- predictions(training_model$models$`A1BG-AS1`, type = "link")
 
 
 
@@ -138,8 +138,7 @@ unique(training_model_filt$coef)
 
 ##This is done when loading the already run model
 
-
-training_model_filt <- readRDS("data/models/seqwrap_generated_models/filtered_training_model.RDS")
+#training_model_filt <- readRDS("data/models/seqwrap_generated_models/filtered_training_model.RDS")
 
 
 
@@ -180,44 +179,23 @@ dev.off()
 
 #The analyses below uses TPM values for both lncs and the proetin coding genes
 
-library(ggrepel)
-library(lme4)
-library(lmerTest)
 
 
 
 
 
-#Load the protein coding genes saved as TPM values
-genes_TPM <- readRDS("data/protein_coding_genes_TPM.RDS")%>%
-  #drop gene_id, select gene_name and any of the sample names that match sample name in metadata
-  dplyr::select(gene_name, any_of(ct_metadata$seq_sample_id))
-
-
-
-
-#Load the full gene counts in TPM
-full_df <- readRDS("data/Ct_genes_TPM.RDS")%>%
-  #drop gene_id, select gene_name and any of the sample names that match sample name in metadata
-  dplyr::select(gene_name, any_of(ct_metadata$seq_sample_id))
-
-#loda full counts in FPKM
-
-genes_fpkm <- readRDS("data/Ct_genes_FPKM.RDS")%>%
-  #drop gene_id, select gene_name and any of the sample names that match sample name in metadata
-  dplyr::select(gene_name, any_of(ct_metadata$seq_sample_id))
-
-
-mRNA_genes_fpkm <- genes_fpkm[genes_fpkm$gene_name %in% genes_TPM$gene_name,]
-
-#saveRDS(mRNA_genes_fpkm, "data/protein_coding_genes_FPKM.RDS")
+#load the mRNA data
+mRNA_genes_fpkm <- readRDS("data/protein_coding_genes_FPKM.RDS")
 
 mRNA_genes_fpkm<- mRNA_genes_fpkm %>%
-  dplyr::filter(rowSums(mRNA_genes_fpkm[,-1]) != 0)
+  dplyr::filter(rowSums(mRNA_genes_fpkm[,-1]) != 0) %>%
+  dplyr::select(gene_name, any_of(ct_metadata$seq_sample_id))
 
 
-#extract the lncs of interest at mid exercise
-lncs_of_int <- genes_fpkm[genes_fpkm$gene_name %in% t3$target,]
+
+
+#extract the lncs of interest 
+lncs_of_int <- lncRNAS[lncRNAS$gene_name %in% t3$target,]
 
 
 
@@ -233,40 +211,8 @@ met_df <- lncs_of_int %>%
 
 
 
-#initialising the arguments
-args<- list(formula = y ~  lncRNA + lncRNA:counts + lncRNA:time + lncRNA:condition + (1|participant)) 
-                                                                            
-                                                                            
-args1<- list(formula = y ~  counts + lncRNA + time + condition  + (1|participant))    
-
-args2<- list(formula = log(y + 0.1) ~  counts + lncRNA + time + condition  + (1|participant)) 
-
-args3<- list(formula = y ~  lncRNA:counts + time + condition  + (1|participant))  
-
-args4 <- list(formula = y ~  lncRNA:counts + lncRNA:time + lncRNA:condition + (1|participant)) 
-
-# Build the correlation model
-
-cor_model <- seqwrap(fitting_fun = lmerTest::lmer,
-                     arguments = args4,
-                     data = mRNA_genes_fpkm,
-                     metadata = met_df,
-                     samplename = "seq_sample_id",
-                     summary_fun = sum_fun_lmer,
-                     eval_fun = eval_mod_lmer,
-                     exported = list(),
-                     save_models = FALSE,
-                     return_models = FALSE,
-                     
-                     #subset = 1:10,
-                     cores = ncores-2)
 
 
-<<<<<<< HEAD
-#saveRDS(cor_model, "data/models/seqwrap_generated_models/simple_model_arg3.RDS")
-=======
-#saveRDS(cor_model, "data/models/seqwrap_generated_models/interaction_model_arg4.RDS")
->>>>>>> 6d1befa3dda8113d6f4bdc8a84ea807c3e5b4649
 
 length(unique(met_df$lncRNA))
 #the one below was obtained from the less stringent filtering based on logfc changes

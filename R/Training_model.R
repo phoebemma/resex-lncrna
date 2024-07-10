@@ -1,9 +1,9 @@
- 
+#This script is for the analyses of the trained versus untrained individuals
 
 #Load the functions most regularly used
 source("R/Trainome_functions.R")
 
-
+#load packages
 library(clusterProfiler)
 library(org.Hs.eg.db)
 library(ggplot2)
@@ -24,132 +24,160 @@ lncRNAS <- readRDS("data/lncRNA_genes.RDS")
 
 ct_metadata <- readRDS("data/contratrain_metadata.RDS")
 
-#reorder the levels of the metadata such that set3 becomes the baseline
 
-#This is used for the model for DE lncs between sets 3 and 6
+#Description of the variables in the metadata dataframe
 
-ct_metadata_reordered<- ct_metadata %>%
-  mutate(condition = factor(condition, levels = c("set3", "set6", "set0")))
 
-#argument for model that looks at the difference between conditions over time
-args<- list(formula = y ~  efflibsize + condition*time  +(1|participant),
+## lib.size = library size lncRNAs alone
+
+## lib.size_all = library size all biotypes
+
+## norm.factors = normalization factors lncRNAs alone
+
+## norm.factors_all = normalization factors all biotypes
+
+## efflibsize_lncs = effective library size of lncRNAs alone
+
+## efflibsize = effective library size of all biotypes
+
+
+
+
+#argument for a  model that looks at trained versus untrained
+
+args<- list(formula = y ~  efflibsize + training_status*time +(1|participant),
             family = glmmTMB::nbinom2())
 
 
 
-#model
-volume_model<- seqwrap(fitting_fun = glmmTMB::glmmTMB,
-                       arguments = args,
-                       data = lncRNAS,
-                       metadata = ct_metadata_reordered,
-                       samplename = "seq_sample_id",
-                       summary_fun = sum_fun,
-                       eval_fun = eval_mod,
-                       exported = list(),
-                       save_models = FALSE,
-                       return_models = FALSE,
-                       cores = ncores-2)
 
 
-#saveRDS(volume_model, "data/seqwrap_generated_models/volume_model_withset3_baseline.RDS")
-mod_eval <- model_eval(volume_model)
+#Model for the trained versus untrained 
 
-hist(mod_eval$pval.zinfl)
+training_model<- seqwrap(fitting_fun = glmmTMB::glmmTMB,
+                         arguments = args,
+                         data = lncRNAS,
+                         metadata = ct_metadata,
+                         samplename = "seq_sample_id",
+                         summary_fun = sum_fun,
+                         eval_fun = eval_mod,
+                         exported = list(),
+                         save_models = FALSE,
+                         return_models = FALSE,
+                         cores = ncores)
 
-volume_model$summaries[[1]]
+
+
+
+#sneekpeek
+training_model$summaries$`A1BG-AS1`
+
+training_model$errors
+
+training_model$evaluations$`A1BG-AS1`
+
+
+
+
+bind_rows(training_model$summaries) %>%
+  
+  filter(coef == "training_statustrained:timet4") %>%
+  # dim()
+  
+  
+  #mutate(gene = names(cor_model$summaries)) %>%
+  ggplot(aes(Pr...z..)) + geom_histogram()
+
+
+
+
+
+
+#save model in data folder
+#saveRDS(training_model, "data/models/seqwrap_generated_models/training_model.RDS")
+
+#get model evaluation using the in-house for combinaing all model evaluations into a table
+mod_eval <- model_eval(training_model)
+
+
+
 #get the model summary using the created function
 #it takes as input the model name and number of unique coefficients
 #it also filters out the model coefficient called "intercept"
 #creates adjusted p values, log2 fold change and fcld change significant threshold
-mod_sum <-  model_sum(volume_model, 10)
+mod_sum <-  model_sum(training_model, 7)
+
+
+
 
 
 #use the filter model parameter function to filter the models that fit the following conditions
 #(Pr...z.. <= 0.05 & fcthreshold == "s"  & pval.disp >= 0.05 & pval.unif >= 0.05 
 
 #it takes as input the data containing the model summary, and that containing the model evaluation
-volume_model_filt <- filt_model_parameters(mod_eval, mod_sum)%>%
+
+
+training_model_filt <- filt_model_parameters(mod_eval, mod_sum)%>%
   dplyr::filter(coef != "efflibsize")
 
 
-#saveRDS(volume_model_filt, "data/seqwrap_generated_models/filtered_vol_model_withset3_baseline.RDS")
+unique(training_model_filt$coef)
 
-unique(volume_model_filt$coef)
+#save filtered model
+#saveRDS(training_model_filt, "data/models/seqwrap_generated_models/filtered_training_model.RDS")
 
-cond6_t3 <- volume_model_filt %>%
-  dplyr::filter(coef == "conditionset6:timet3")%>%
+
+
+
+
+
+
+
+
+
+##This is done when loading the already run model
+
+#training_model_filt <- readRDS("data/seqwrap_generated_models/filtered_training_model.RDS")
+
+
+
+
+
+#Select those differentially expressed at midexercise
+t3 <- training_model_filt %>%
+  dplyr::filter(coef == "training_statustrained:timet3")%>%
   dplyr::filter(log2fc >= 1 | log2fc <= -1)
 
-cond6_t4 <- volume_model_filt %>%
-  dplyr::filter(coef == "conditionset6:timet4")%>%
-  dplyr::filter(log2fc >= 1 | log2fc <= -1)
 
 #make a volcano plot using the plot_volcano function
-jpeg(filename = "./plots/DE_set6_with_set3_baseline_at_t3.jpeg",
+jpeg(filename = "./plots/DE_trained_vs_untrained_at_midexercise.jpeg",
      width = 850, height = 500, quality = 100)
-plot_volcano(cond6_t3, "DE lncs between set 6 and set3 at midexercise")
+plot_volcano(t3, "DE lncs between trained and untrained legs at mid exercise")
 dev.off()
 
 
+
+#Select those differentially expressed at post exercise
+t4 <- training_model_filt %>%
+  dplyr::filter(coef == "training_statustrained:timet4")%>%
+  dplyr::filter(log2fc >= 1 | log2fc <= -1)
+
+
 #make a volcano plot using the plot_volcano function
-jpeg(filename = "./plots/DE_set6_with_set3_baseline_at_postExc.jpeg",
+jpeg(filename = "./plots/DE_trained_vs_untrained_postexercise.jpeg",
      width = 850, height = 500, quality = 100)
-plot_volcano(cond6_t4, "DE lncs between set 6 and set3 at postexercise")
+plot_volcano(t4, "DE lncs between trained and untrained at postexercise")
 dev.off()
 
 
 
-#Extract the DE lncs of interest
 
+#Coexpression analyses
 
-lncs_of_int <- lncRNAS[lncRNAS$gene_name %in% cond6_t4$target,]
+#This builds a model to check the protein coding genes coexpressed with the DE lncs
 
+#The analyses below uses TPM values for both lncs and the proetin coding genes
 
-
-
-set6_t3_lncs <- pivot_longer(data = lncs_of_int,
-                        cols = -(gene_name),
-                        names_to = "seq_sample_id",
-                        values_to = "counts")
-
-
-
-
-
-
-#Merge the lncs to the metadata
-
-# set6_t3_lncs <- set6_t3_lncs %>%
-#   inner_join(ct_metadata %>%
-#                filter(condition != "set0")
-#              , 
-#                by = "seq_sample_id")
-
-set6_t3_lncs$log_counts <- log(set6_t3_lncs$counts)
-
-plot <- ggplot(data = set6_t3_lncs, 
-             mapping = aes(x = time,
-                           y = gene_name,
-                           fill = log_counts
-                           )) +
-  geom_tile() +
-  #use the PuOr color palette from colorBrewer
-  scale_fill_distiller(palette = "PuOr")+
-  #scale_fill_gradient()+
- facet_grid(~ condition)+
-  #set a base for all fonts
-  theme_grey(base_size=8) +
-  #add border white colour of line thickness 0.25
-  geom_tile(colour="white", size=0.25)+
-  ggtitle("Differentially expressed lncRNAs between Set6 and Set3 at Postexercise")+
-  theme(plot.title = element_text(hjust = 0.5))
-ggsave(plot, filename = "./plots/heatmap_DE_set6_vs_set3_at_postexercise_.jpeg",
-       width = 8.5, height = 5, quality = 100)
-
-
-
-
-##Coexpression analyses
 
 
 
@@ -165,6 +193,11 @@ mRNA_genes_fpkm<- mRNA_genes_fpkm %>%
 
 
 
+#extract the lncs of interest 
+lncs_of_int <- lncRNAS[lncRNAS$gene_name %in% t3$target,]
+
+
+
 #extract the metadata and merge to the lncs of interest
 met_df <- lncs_of_int %>%
   pivot_longer(cols = -("gene_name"),
@@ -174,6 +207,11 @@ met_df <- lncs_of_int %>%
   #rename the gene_name to lncRNA to avoid mixing up with the mRNA genenames
   dplyr::rename(lncRNA = gene_name)
 
+
+
+
+
+length(unique(met_df$lncRNA))
 
 #initialise argument
 args <- list(formula = y ~  counts + time + condition  + sex + (1|participant))    
@@ -219,7 +257,7 @@ for(i in seq_along(LR)) {
     mutate(geneid = rep(geneids, each = 7)) %>%
     mutate(lncRNA =LR[i])
   
- 
+  
   
 }
 
@@ -245,9 +283,9 @@ length(unique(x$coef))
 x_filt <- x %>%
   subset(coef != "(Intercept)") %>%
   mutate(adj.p = p.adjust(Pr...t.., method = "fdr"),
-                                          log2fc = Estimate/log(2),
-                                          
-            fcthreshold = if_else(abs(log2fc) > 0.5, "s", "ns"))%>%
+         log2fc = Estimate/log(2),
+         
+         fcthreshold = if_else(abs(log2fc) > 0.5, "s", "ns"))%>%
   filter(fcthreshold == "s" & adj.p <= 0.05 & pval.unif >= 0.05 )
 
 #saveRDS(x_filt, "data/seqwrap_generated_models/conditions_models/filtered_int_model_set6_postexc_with_set3_baseline.RDS")
