@@ -178,7 +178,7 @@ bind_rows(summary_results)
 
 # Build the correlation model
 
-<<<<<<< HEAD
+
 vol_cor_model <- seqwrap(fitting_fun = lmerTest::lmer,
                      arguments = args,
                      data = mRNA_genes_fpkm,
@@ -192,9 +192,7 @@ vol_cor_model <- seqwrap(fitting_fun = lmerTest::lmer,
                      
                      #subset = 1:10,
                      cores = ncores-2)
-=======
 
->>>>>>> f600e6c860a7a76cb4e3119df72dd3cf55ea5f29
 
 #saveRDS(vol_cor_model, "data/seqwrap_generated_models/conditions_models/conditions_set3_correlation.RDS")
 #saveRDS(vol_cor_model, "data/seqwrap_generated_models/conditions_models/condition_set6_t3_correlation.RDS")
@@ -224,7 +222,7 @@ unlist(temp$value)
 #Extract the models that gave null values in midexercise condition 3
 
 #bind the model evaluations in one row, excluding those with null values
-<<<<<<< HEAD
+
 vol_mod_ev <- bind_rows(within(vol_cor_model$evaluations, rm( BARHL2, BFSP2,
                                                              C1orf141, CFHR5, CST1, EGR4,
                                                               H3C12, KRT85, MROH5, OR1A1, OR51M1, 
@@ -237,7 +235,7 @@ vol_mod_ev <- bind_rows(within(vol_cor_model$evaluations, rm( BARHL2, BFSP2,
                                                              OR51T1, OR7E24, OR8G3P, PDHA2,
                                                              PRAMEF1, PSG9,SERPINA9,
                                                              RNASE9, TMEM190,ZAR1L, ZIC5))))
-=======
+
 vol_mod_ev <- bind_rows(within(vol_cor_model$evaluations, rm(ADM, BARHL2, BFSP2, C1orf141, CFHR5, 
                                                              CST1, EGR4, GMPR2,  H3C12,IREB2, KRT85, 
                                                              MAPK8, MROH5,  OR1A1,  OR51M1, OR51T1, 
@@ -248,12 +246,12 @@ vol_mod_ev <- bind_rows(within(vol_cor_model$evaluations, rm(ADM, BARHL2, BFSP2,
                                                              MAPK8, MROH5,  OR1A1,  OR51M1, OR51T1, 
                                                              OR7E24, OR8G3P, PDHA2, PRAMEF1, PSG9,SERPINA9,
                                                              SH2D1A,  RNASE9, TMEM190,ZAR1L, ZIC5))))
->>>>>>> f600e6c860a7a76cb4e3119df72dd3cf55ea5f29
+
 
 #hist(vol_mod_ev $pval.unif, main = "distribution of p unif values log converted dependent y")
 
 
-<<<<<<< HEAD
+
 vol_mod_SUM<- bind_rows(within(vol_cor_model$summaries, rm(BARHL2, BFSP2,
                                                            C1orf141, CFHR5, CST1, EGR4,
                                                            H3C12, KRT85, MROH5, OR1A1, OR51M1, 
@@ -267,7 +265,7 @@ vol_mod_SUM<- bind_rows(within(vol_cor_model$summaries, rm(BARHL2, BFSP2,
                                                                OR51T1, OR7E24, OR8G3P, PDHA2,
                                                                PRAMEF1, PSG9,SERPINA9,
                                                                RNASE9, TMEM190,ZAR1L, ZIC5))), each = 27)) %>%
-=======
+
 
 tmem <- lncRNAS %>%
   filter(gene_name == "TMEM9B-AS1")
@@ -283,18 +281,18 @@ vol_mod_SUM<- bind_rows(within(vol_cor_model$summaries, rm(ADM, BARHL2, BFSP2, C
                                                                MAPK8, MROH5,  OR1A1,  OR51M1, OR51T1, 
                                                                OR7E24, OR8G3P, PDHA2, PRAMEF1, PSG9,SERPINA9,
                                                                SH2D1A,  RNASE9, TMEM190,ZAR1L, ZIC5))), each = 17)) %>%
->>>>>>> f600e6c860a7a76cb4e3119df72dd3cf55ea5f29
+
   mutate(adj.p = p.adjust(Pr...t.., method = "fdr"),
        log2fc = Estimate/log(2),
 
        fcthreshold = if_else(abs(log2fc) > 0.5, "s", "ns")) %>%
   filter(fcthreshold == "s" & adj.p <= 0.05 )
 
-<<<<<<< HEAD
+
 #saveRDS(vol_mod_SUM, "data/seqwrap_generated_models/conditions_models/filtered_conditions_set6_t3_correlation.RDS")
-=======
+
 #saveRDS(vol_mod_SUM, "data/seqwrap_generated_models/conditions_models/filtered_conditions_set3_t3_correlation.RDS")
->>>>>>> f600e6c860a7a76cb4e3119df72dd3cf55ea5f29
+
 
 hist(vol_mod_SUM$adj.p, main = "adjusted p vlaues distribution in coexpressed mRNAs set6 mid exercise")
 
