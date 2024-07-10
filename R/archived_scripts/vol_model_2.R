@@ -1,5 +1,4 @@
-# The first volume model is based on condition set 0 as baseline
-#This alternative model will use set3 as baseline and compare the other conditions to it. 
+ 
 
 #Load the functions most regularly used
 source("R/Trainome_functions.R")
@@ -24,6 +23,8 @@ lncRNAS <- readRDS("data/lncRNA_genes.RDS")
 ct_metadata <- readRDS("data/contratrain_metadata.RDS")
 
 #reorder the levels of the metadata such that set3 becomes the baseline
+
+#This is used for the model for DE lncs between sets 3 and 6
 
 ct_metadata_reordered<- ct_metadata %>%
   mutate(condition = factor(condition, levels = c("set3", "set6", "set0")))
@@ -84,7 +85,7 @@ cond6_t4 <- volume_model_filt %>%
 #make a volcano plot using the plot_volcano function
 jpeg(filename = "./plots/DE_set6_with_set3_baseline_at_t3.jpeg",
      width = 850, height = 500, quality = 100)
-plot_volcano(cond6_t3, "DE lncs between set 6 and set3 at postexercise")
+plot_volcano(cond6_t3, "DE lncs between set 6 and set3 at midexercise")
 dev.off()
 
 
@@ -96,7 +97,8 @@ dev.off()
 
 
 
-#Extrat the DE lncs at mid exercise 
+#Extract the DE lncs of interest
+
 
 lncs_of_int <- lncRNAS[lncRNAS$gene_name %in% cond6_t4$target,]
 
@@ -115,11 +117,11 @@ set6_t3_lncs <- pivot_longer(data = lncs_of_int,
 
 #Merge the lncs to the metadata
 
-set6_t3_lncs <- set6_t3_lncs %>%
-  inner_join(ct_metadata %>%
-               filter(condition != "set0")
-             , 
-               by = "seq_sample_id")
+# set6_t3_lncs <- set6_t3_lncs %>%
+#   inner_join(ct_metadata %>%
+#                filter(condition != "set0")
+#              , 
+#                by = "seq_sample_id")
 
 set6_t3_lncs$log_counts <- log(set6_t3_lncs$counts)
 
@@ -158,8 +160,7 @@ mRNA_genes_fpkm<- mRNA_genes_fpkm %>%
   dplyr::filter(rowSums(mRNA_genes_fpkm[,-1]) != 0) %>%
   dplyr::select(gene_name, any_of(ct_metadata$seq_sample_id))
 
-#select only those without zero variance in the rows
-#mRNA_genes_fpkm <- mRNA_genes_fpkm[, sapply(mRNA_genes_fpkm[, -1], var) != 0.00]
+
 
 
 #extract the metadata and merge to the lncs of interest
@@ -175,59 +176,9 @@ met_df <- lncs_of_int %>%
 #initialise argument
 args <- list(formula = y ~  counts + time + condition  + sex + (1|participant))    
 
-# args1 <- list(formula = y ~  0 + lncRNA:(counts + time + condition)   + (1|participant))  
-# 
-# 
-# vol2_model <- seqwrap(fitting_fun = lmerTest::lmer,
-#         arguments = args1,
-#         data = mRNA_genes_fpkm,
-#         metadata = met_df,
-#         samplename = "seq_sample_id",
-#         summary_fun = sum_fun_lmer,
-#         eval_fun = eval_mod_lmer,
-#         exported = list(),
-#         save_models = FALSE,
-#         return_models = FALSE,
-#         
-#         #subset = 1:10,
-#         cores = ncores-2)
-# 
-# 
-# vol2_model$evaluations$BARHL1
-# 
-# 
-# 
-# 
-# bind_rows(vol2_model$summaries)
-# 
-# names(vol2_model$summaries)
 
-#determine the models that raised errors
-# temp <-  vol2_model$errors%>%
-# 
-#   mutate(err = unlist(errors_fit)) %>%
-# 
-# 
-# 
-#   pivot_longer(cols = errors_fit:warn_eval) %>%
-# 
-#   filter(name == "err_sum") %>%
-#   print()
-
-# unlist(temp$value)
-# 
-# vol_mod_ev <- bind_rows(within(vol2_model$evaluations, rm(BARHL2, BFSP2, C1orf141,CFHR5,
-#                                                           CST1,DNAJB5,EGR4,EVC2, H3C12, KRT85,MEMO1, MROH5,
-#                                                           OR1A1,OR51M1, OR51T1, OR7E24, OR8G3P,
-#                                                           PDHA2, PIAS2, PRAMEF1, PSG9, RNASE9,
-#                                                           SERPINA9, SGCG, TMEM190, ZAR1L, ZIC5)))%>%
-#   mutate(target = names(within(vol2_model$evaluations, rm(BARHL2, BFSP2, C1orf141,CFHR5,
-#                                                           CST1,DNAJB5, EGR4,EVC2, H3C12, KRT85,MEMO1, MROH5,
-#                                                           OR1A1,OR51M1, OR51T1, OR7E24, OR8G3P,
-#                                                           PDHA2, PIAS2, PRAMEF1, PSG9, RNASE9,
-#                                                           SERPINA9, SGCG, TMEM190, ZAR1L, ZIC5))))
-# hist(vol_mod_ev$pval.unif)
-
+#Prepare and run a loop using Seqwrap
+#This loops through each individual lncRNA in the metadata,
 summary_results <- list()
 evaluations <- list()
 
@@ -249,10 +200,12 @@ for(i in seq_along(LR)) {
                            #subset = 1:10,
                            cores = ncores-2)
   
-  # Add names for each 
+  # Add names for each and remove those with null in output
   
   
   geneids <- names(which(vol_cor_model$summaries != "NULL"))
+  
+  #remove all genes with null output
   excl <- names(which( vol_cor_model$evaluations == "NULL" ))
   
   evaluations[[i]] <- bind_rows(within(vol_cor_model$evaluations, rm(excl))) %>%
@@ -304,6 +257,7 @@ length(unique(x_counts$geneid))
 
 
 #load genes data in fpkm
+#This is the full dataset
 genes_fpkm <- readRDS("data/Ct_genes_FPKM.RDS")
 
 
