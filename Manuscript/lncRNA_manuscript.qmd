@@ -7,42 +7,45 @@ output:
 editor: visual
 csl: science.csl
 bibliography: My_Library.bib
-target journal : sports medicine open:https://sportsmedicine-open.springeropen.com/
+target journal :https://www.tandfonline.com/journals/krnb20
 prefer-html: true
 ---
 
-## Abstract
+## Abstract 
 
-## Background
+## Introduction
 
-The skeletal muscle is important for physical health and vitality. It responds to both use and disuse by hypertrophying, and loss of muscle strength and mass respectively @limEvidenceBasedNarrativeReview2022a , @khan2020 . Human age correlates to loss of muscle mass and strength @power2013 @volpi2004 which in turn correlates to the risks of falls, injuries and impaired mobility @wolfson1995. Certain disease conditions like chronic obstructive pulmonary disease (COPD) could also accelerate loss in muscle mass and strength @molmenChronicObstructivePulmonary2021. Thus, muscle strength and mass are important for improved quality of life. \@
+The skeletal muscle is important for physical health and vitality. It responds to both use and disuse by hypertrophying, and loss of muscle strength and mass respectively [@lim_evidence-based_2022; @khan_increased_2020 ]. Human age correlates to loss of muscle mass and strength [@power_human_2013; @volpi_muscle_2004 ] which in turn correlates to the risks of falls, injuries and impaired mobility @wolfson_strength_1995 . Certain disease conditions like chronic obstructive pulmonary disease (COPD) could also accelerate loss in muscle mass and strength @molmen_chronic_2021 . Thus, muscle strength and mass are important for improved quality of life.
 
-Progressive resistance exercise training (PRET); a type of exercise where the skeletal muscle is exercised against progressively increased types of resistance @liu2009 such as free weights , is the most potent non-pharmacological method of stimulating muscle hypertrophy and countering the loss in muscle strength and mass @limEvidenceBasedNarrativeReview2022a, @hurstResistanceExerciseTreatment2022 . PRET has been shown to reduce blood glucose levels @xieEffectsResistanceExercise2022, @westcottResistanceTrainingMedicine2012 improve strength and performance in older adults @liu2009 and in children with celebral palsy @hanssenProgressiveResistanceTraining2022 , improve health status and pain intensity in women with fibromyalgia @larssonResistanceExerciseImproves2015, @buschResistanceExerciseTraining2013, counteract the adverse effects of anrogen deprivation therapy in prostate cancer patients @houben2023, decrease menopause-related symptoms @berinResistanceTrainingHot2019 PRET impacts not just the physical but also the mental well being of participants @kekalainenEffects9monthResistance2018. There is a dose dependent relationship between PRET volume and its outcomes @hammarstromBenefitsHigherResistancetraining2020. Besides volume, factors such as ribosome biogenesis, transcriptome profile and responses, metabolites profile etc determine an individual's response to PRET @limEvidenceBasedNarrativeReview2022a, @hammarstr�m2022
+Progressive resistance exercise training (RT); a type of exercise where the skeletal muscle is exercised against progressively increased types of resistance @liu_progressive_2009 such as free weights , is the most potent non-pharmacological method of stimulating muscle hypertrophy and countering the loss in muscle strength and mass [@lim_evidence-based_2022; @hurst_resistance_2022] . RT has been shown to reduce blood glucose levels [@xie_effects_2022; @westcott_resistance_2012] improve strength and performance in older adults @liu_progressive_2009 and in children with celebral palsy @hanssen_progressive_2022 , improve health status and pain intensity in women with fibromyalgia [@larsson_resistance_2015; @busch_resistance_2013] , counteract the adverse effects of anrogen deprivation therapy in prostate cancer patients @houben_resistance_2023 , as well as decrease menopause-related symptoms @berin_resistance_2019. The benefits of RT extend beyond physical health to include the mental well being of participants @kekalainen_effects_2018 and correlate to the volume of RT done @hammarstrom_benefits_2020 . Besides volume, factors such as ribosome biogenesis, transcriptome profile and responses, metabolites profile etc determine an individual's response to RT [@lim_evidence-based_2022; @hammarstrom_ribosome_2022].
 
-Numerous studies have reported the gene expression patterns following PRET, but how these patterns are regulated is poorly understood. Long non-coding RNAs (lncRNAs) are said regulate different aspects of cellular physiology and function @oo2022, @bridges2021 as well as the expression of protein-coding genes @statello2021 @doi:10.1177/2472630318780639. lncRNAs are non-protein-coding RNAs of more than 200 nucleotides in length. Most lncRNAs have low levels of expression and sequence conservation @mattick2023 , their expressions however are highly tissue and condition-specific @statello2021, @bonilauri2020, @aliRNAdependentFunctionLncRNA2020 . Over 240,000 lncRNAs in humans have been curated @10.1093/nar/gky960 even though not much is known about the functional roles of a majority of them @aliRNAdependentFunctionLncRNA2020 . Some have been reported to play roles in cell cycle regulation @kitagawa2013, differentiation @delás2017, metabolism @sirey2019, and muscle regeneration @sweta2019. There is currently significant uncertainty about the mechanisms of actions of most lncRNAs. Figuring out lncRNAs that are differentially expressed in a given condition could thus be the first in a series of steps aimed towards elucidating their mechanisms of action. Most publicly available research on this group of RNAs are focused on their roles in diseases, especially cancers, . Relatively much less like @bonilauri2020 are available on their roles in health promotion. It perhaps pertinent to investigate the possible functional roles of lncRNAs in health promoting activities like PRET. This knowledge could serve towards a deeper understanding of the mechanisms of response to PRET, but perhaps optimising the benefits as well as personalizing an individual's PRET regimen. This research is exploring the role of these groups of genes in health promotion,vis-a-vis resistance exercise training among young individuals.
+Numerous studies have reported the gene expression patterns following RT, but how these patterns are regulated is poorly understood. Understanding these could also help understand the factors regulating response to RT. Long non-coding RNAs (lncRNAs) are said regulate the expression of protein-coding genes [@statello_gene_2021; @doi:10.1177/2472630318780639] as well as different aspects of cellular physiology and function [@oo_long_2022; @bridges_lnccation_2021] . lncRNAs are non-protein-coding RNAs of more than 200 nucleotides in length. Most lncRNAs have low levels of expression and sequence conservation @mattick_long_2023 , their expressions however are highly tissue and condition-specific [@statello_gene_2021; @bonilauri_long_2020; @ali_beyond_2020] . Over 240,000 lncRNAs in humans have been curated @10.1093/nar/gky960 even though not much is known about the functional roles of a majority of them @ali_beyond_2020 . Some have been reported to play roles in cell cycle regulation @kitagawa_cell_2013 , differentiation @delas_lncrna_2017 , metabolism @sirey_long_2019 , and muscle regeneration @sweta_importance_2019 . There is currently significant uncertainty about the mechanisms of actions of most lncRNAs. Figuring out lncRNAs that are differentially expressed in a given condition could thus be the first in a series of steps aimed towards elucidating their mechanisms of action.
 
-This study aims to identify lncRNAs that are differentially expressed following PRET based on exercise conditions, ie between the trained and untrained and between volumes among the trained. It will enhance the current knowledge about the responses to PRET and how these can be optimised and personalised for individual participants
+Most publicly available research on this group of RNAs are focused on their roles in diseases, especially cancers, . Relatively much less like @bonilauri_long_2020 are available on their roles in health promotion. It perhaps pertinent to investigate the possible functional roles of lncRNAs in health promoting activities like RT. This knowledge could not only contribute towards a deeper understanding of the mechanisms of response to RT, but perhaps optimizing the benefits as well as personalizing an individual's RT regimen.
+
+This study aims to identify lncRNAs that are differentially expressed following RT based on exercise conditions, that is, between the trained and untrained and between volumes among the trained. It will enhance the current knowledge about the responses to PRET and how these can be optimized and personalized for individual participants
 
 ## Methods
 
-### Data and Data analyses
+### Study design, RNA extraction and sequencing 
 
 Study design , sample preparation and RNA sequencing were done as described by Hamarsland et al (in_view).
 
-FastQc (v0.11.5) was used to check the quality of the FastQ files . RSEM (v.1.3.3-foss-2019b) was used to align and count the reads mapping to human genome(GRCh 38) with gencode v40 primary assembly annotation . Data extraction and statistical analyses were done on RStudio (2023.06.2 Build 561) . The expected count and FPKM values of the gene level counts were used during the data analyses . An overview of data analyses steps is shown in Figure 1
+### Data Analyses
+
+The quality of the RNA sequences was checked using FastQc (v0.11.5) @andrews2012 while RSEM (v.1.3.3-foss-2019b) @li2011 was used to align and count the reads mapping to human genome(GRCh 38) with gencode v40 primary assembly annotation . Further data extraction and statistical analyses were done on RStudio (2023.06.2 Build 561) . The expected count and FPKM values of the gene level counts were used during the data analyses . An overview of data analyses steps is shown in Figure 1
 
 #### Models and visualization
 
-using BiomaRt @durinck2009 , all genes annotated as lncRNA by the Ensemble database were filtered for downstream analyses. To compare the influence of the effective library size of all the genes, versus only those annotated as lncRNAs, two types of negative binomial regression models were built using Seqwrap, an R package developed in-house, one normalized using lncRNAs alone, and another using the full genes counts.
+using BiomaRt @durinck_mapping_2009 , all genes annotated as lncRNA by the Ensemble database were filtered for downstream analyses. To compare the influence of the effective library size of all the genes, versus only those annotated as lncRNAs, two types of negative binomial regression models were built using Seqwrap, an R package developed in-house, one normalized using lncRNAs alone, and another using the full genes counts.
 
 Two models were built, one to determine the effect of training by grouping the participants' legs into trained and untrained. The other model was designed to investigate the effect of the different exercise conditions , that is set 6, set 3 and set 0. lncRNAs with p values less than or below 0.05, and log fold 2 change above 0.5 were extracted
 
-### Coexpression analyses
+####  Coexpression analyses
 
-To understand the potential functions of the differentially expressed lncRNAs, a model was built using lmer @bates2015 to calculate the correlation between each individual lncRNA expression and the expression of the genes annotated by Ensemble as "protein coding genes" . This model built to identify protein-coding genes with similar expression patterns as the lncRNAs given the condition and time of PRET .
+To understand the potential functions of the differentially expressed lncRNAs, a model was built using lmer @bates_fitting_2015 to calculate the correlation between each individual lncRNA expression and the expression of the genes annotated by Ensemble as "protein coding genes" . This model built to identify protein-coding genes with similar expression patterns as the lncRNAs given the condition and time of PRET .
 
-```{r Steps_analyses, fig.cap="Flow diagram sowing steps in analysis", echo=FALSE}
-formula1 = y ~  efflibsize + condition*time +(1|participant)          
+```{r Steps_analyses, fig.cap="Flow diagram sowing steps in analysis", fig.align = "right", echo=FALSE}
 
 DiagrammeR::grViz("digraph {
   graph [layout = dot, rankdir = TB]
@@ -57,7 +60,7 @@ DiagrammeR::grViz("digraph {
 
   
   # edge definitions with the node IDs
-  rec1 -> rec2 -> rec3 -> rec4 -> rec5
+  rec1 -> rec2 -> rec3 -> rec4 -> rec5 -> rec6
   }",
   height = 500)
 
@@ -73,16 +76,26 @@ DiagrammeR::grViz("digraph {
 
 ### Discussion
 
-Thereis a poor understanding of the lncRNA functions owing to their relative low expressions , weak conservation and the relative less research into them @uszczynska-ratajczak2018
+Thereis a poor understanding of the lncRNA functions owing to their relative low expressions , weak conservation and the relative less research into them @uszczynska-ratajczak_towards_2018
 
 The lncRNA expression of biopsies from the vastus lateralis muscle of young individuals who participated in the Contratrain training exercise were compared and analysed to detect their differential expression based on exercise condition and time, as well as the mRNA genes possibly regulated by the lncRNAs
 
-lncRNAs act as regulators of different mechanisms in the cell cycle @kitagawa2013, @khanDistinctRegulatoryFunctions2023
+lncRNAs act as regulators of different mechanisms in the cell cycle @kitagawa_cell_2013 , @khan_distinct_2023
 
-correlations in gene expression are used to infer the functions of genes @chapman2022, @seifuddin2020 . This guilt by association method assumes that expression patterns encode functionality @uszczynska-ratajczak2018
+correlations in gene expression are used to infer the functions of genes @chapman_correlated_2022 , @seifuddin_lncrnakb_2020 . This guilt by association method assumes that expression patterns encode functionality @uszczynska-ratajczak_towards_2018
 
 lncRNA research would most likely help understanding the underlying mechanisms that influence the benefits accrued from PRET
 
 functionality of lncRNAs should be studied using wet-lab based methods. The increasing knowledge and access to computational methods for gene expression studies makes it easier to begin somewhere, by filtering a few lncRNAs from the thousands fom where to begin the studies.
 
 While this study does not enforce predictions of the functional roles of lncRNAs, it provides pointers towards lncRNAs of interest and perhaps points to areas where we could further enhance the understanding of the regulatory landscape of PRET and its benefits
+
+# References
+
+::: {#refs}
+:::
+:::
+
+# 
+
+# Appendix
