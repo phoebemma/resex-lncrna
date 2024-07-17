@@ -79,9 +79,9 @@ plot_volcano <- function(x, y){
   # add a column of NAs
   x$diffexpressed <- "NO"
   # if log2Foldchange > 0.6 and pvalue < 0.05, set as "UP" 
-  x$diffexpressed[x$log2fc > 0.6 & x$Pr...z.. < 0.05] <- "UP"
+  x$diffexpressed[x$log2fc > 1.0 & x$Pr...z.. < 0.05] <- "UP"
   # if log2Foldchange < -0.6 and pvalue < 0.05, set as "DOWN"
-  x$diffexpressed[x$log2fc < -0.6 & x$Pr...z..< 0.05] <- "DOWN"
+  x$diffexpressed[x$log2fc < -1.0 & x$Pr...z..< 0.05] <- "DOWN"
   
   
   
@@ -89,7 +89,7 @@ plot_volcano <- function(x, y){
   p <- ggplot(data=x, aes(x=log2fc, y=-log10(Pr...z..), col=diffexpressed)) + geom_point() + theme_minimal()
   
   # Add lines as before...
-  p2 <- p + geom_vline(xintercept=c(-0.6, 0.6), col="red") +
+  p2 <- p + geom_vline(xintercept=c(-1.0, 1.0), col="red") +
     geom_hline(yintercept=-log10(0.05), col="red")
   
   

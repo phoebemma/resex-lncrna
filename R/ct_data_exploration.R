@@ -1,5 +1,7 @@
 #Load the needed libraries
-
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
 
 #Load the functions most regularly used
 source("R/Trainome_functions.R")
@@ -12,16 +14,29 @@ meta_df <- readRDS("data/contratrain_metadata.RDS")
 #Load the file containing protein-coding genes and lncs
 
 
-genes <- readRDS("data/protein_coding_and_lncRNA_genes_combined.RDS")
+#genes <- readRDS("data/protein_coding_and_lncRNA_genes_combined.RDS")
 
 # mRNA_genes <-readRDS("data/protein_coding_genes.RDS")
-# 
+lncRNAS <-  lncRNAS <- readRDS("data/lncRNA_genes.RDS")
 
 
-genes%>%
-  group_by(gene_name, gene_biotype) %>%
-  ggplot(aes(x = gene_biotype))+
-  geom_bar()+
+
+
+#merge he metadata to the lncRNA data for visualization
+met_df <- lncRNAS %>%
+  pivot_longer(cols = -("gene_name"),
+               names_to = "seq_sample_id",
+               values_to = "counts") %>%
+  inner_join(meta_df, by = "seq_sample_id") %>%
+  #rename the gene_name to lncRNA to avoid mixing up with the mRNA genenames
+  dplyr::rename(lncRNA = gene_name)
+
+
+
+met_df%>%
+  group_by(condition, time, lncRNA) %>%
+  ggplot(aes( lncRNA, condition, fill = counts, colour = time ))+
+  geom_point()+
   theme(axis.text.x = element_text( vjust = 1, hjust = 0.5))+
   geom_text(stat = "count",  aes(label= after_stat(count)), vjust = -0.5)
 

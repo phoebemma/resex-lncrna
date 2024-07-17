@@ -308,7 +308,7 @@ ego_df <- enrichGO(gene = x_counts$geneid,
                    universe = genes_fpkm$gene_name,
                    keyType = "SYMBOL",
                    OrgDb = org.Hs.eg.db,
-                   ont = "BP",
+                   ont = "MF",
                    pAdjustMethod = "BH",
                    qvalueCutoff = 0.05,
                    readable = T)
@@ -316,12 +316,12 @@ ego_df <- enrichGO(gene = x_counts$geneid,
 cluster_summary <- data.frame(ego_df)
 
 
-jpeg(filename = "./plots/15_top_BP_trained_untrained_at_postexc.jpeg",
+jpeg(filename = "./plots/15_top_mf_trained_untrained_at_postexc.jpeg",
      width = 850, height = 700, quality = 100)
 
 dotplot(ego_df, showCategory = 15,
         
-        font.size = 5, title = "15 top biological processes coexpressed proteins at  postexercise") +
+        font.size = 5, title = "15 top Molecular function of coexpressed proteins at  postexercise") +
   theme(axis.text = element_text(size = 15), axis.text.y = element_text(size = 15), axis.title.x = element_text(size = 10))
 dev.off()
 

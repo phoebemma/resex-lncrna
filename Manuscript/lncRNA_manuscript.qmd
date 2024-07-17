@@ -70,13 +70,42 @@ DiagrammeR::grViz("digraph {
 ```         
 ```
 
-## Results
+## Results and Discussion
 
-### Discussion
+#### Trained versus untrained
 
-Thereis a poor understanding of the lncRNA functions owing to their relative low expressions , weak conservation and the relative less research into them @uszczynska-ratajczak_towards_2018
+15 lncRNAs were differentially expressed between the trained and untrained legs at midexercise, while only one lncRNA was differentially expressed by the end of the training regimen.
 
-The lncRNA expression of biopsies from the vastus lateralis muscle of young individuals who participated in the Contratrain training exercise were compared and analysed to detect their differential expression based on exercise condition and time, as well as the mRNA genes possibly regulated by the lncRNAs
+Using our method of finding correlations between the expression of lncs and protein-coding genes,
+
+```{r, DE midexercise, echo=FALSE}
+
+df <- readRDS("/data/seqwrap_generated_models/filtered_training_model.RDS")
+t3 <- df %>%
+  dplyr::filter(coef == "training_statustrained:timet3")%>%
+  dplyr::filter(log2fc >= 1 | log2fc <= -1) %>%
+  select(target,adj.p, log2fc, pval.unif, pval.disp )
+knitr::kable(t3, caption ="Differentially expressed lncRNAs halfway through the training program" )
+```
+
+```{r,DE postexercise,  echo=FALSE}
+
+t4 <- df %>%
+  dplyr::filter(coef == "training_statustrained:timet4")%>%
+  dplyr::filter(log2fc >= 1 | log2fc <= -1)%>%
+  select(target,adj.p, log2fc, pval.unif, pval.disp )
+knitr::kable(t4, caption = "DE lncRNAs between the trained and untrained legs postexercise" )
+```
+
+DUXAP9 was downregulated in the trained leg postexercise. Its overexpression has been linked to different cancers [@zhu2018; @chen2019; @zhu2019] . DUXAP9's expression according to the model, correlated with the expression of 184 protein-coding genes.
+
+The 15 lncRNAs at mid exercise correlated to 719 protein coding genes
+
+#### Volume specific benefits
+
+14 and 15 lncRNAs were differentially expressed at post and mid exercise respectively between the legs performed 3 sets and 6 sets of RT respectively
+
+There is a poor understanding of the lncRNA functions owing to their relative low expressions , weak conservation and the relative less research into them @uszczynska-ratajczak_towards_2018
 
 lncRNAs act as regulators of different mechanisms in the cell cycle @kitagawa_cell_2013 , @khan_distinct_2023
 

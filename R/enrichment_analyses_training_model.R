@@ -1,62 +1,62 @@
 #check the perform gene ontology  using enrichGO
-library(clusterProfiler)
-library(org.Hs.eg.db)
-library(ggplot2)
 library(dplyr)
-library(tidyverse)
+library(ggplot2)
+library(ggrepel)
+library(gridExtra)
+#Load the functions most regularly used
+source("R/Trainome_functions.R")
+
+lncRNAS <-  lncRNAS <- readRDS("data/lncRNA_genes.RDS")
+
+ct_metadata <- readRDS("data/contratrain_metadata.RDS")
+#Load the four different models
+
+#The volume model with set 3 as baseline
+train <- readRDS("data/seqwrap_generated_models/training_coexpression_models/filtered_trained_untrained_midexc_correlation.RDS")
+
+unique(train$coef)
+
+colnames(train)
+
+length(unique(train$geneid))
+#how many correlated protein-coding genes
 
 
+x_counts <- train %>%
+  subset(coef == "counts")
+
+length(unique(x_counts$geneid))
 
 
+#load genes data in fpkm
+#This is the full dataset
+genes_fpkm <- readRDS("data/Ct_genes_FPKM.RDS")
 
 
-#Load the filtered coef data of the model
-
-#This is done to merge i with the model eveluation and filter only models that pass the evaluation parameters
-
-str_cor_t3 <- readRDS("data/models/seqwrap_generated_models/trained_untrained_midexercise/filtered_less_stringent_simple_correlation_model.RDS")
-
-
-
-length(unique(str_cor_t3$target))
-
-#laod the full data for universe
-genes <- readRDS("data/protein_coding_genes_FPKM.RDS")
-
-
-
-<<<<<<< HEAD
-ego_df <- enrichGO(gene = unique(str_cor_t3$target),
-=======
-ego_df <- enrichGO(gene = unique(simp_mod_sum$target),
->>>>>>> 6d1befa3dda8113d6f4bdc8a84ea807c3e5b4649
-                   universe = genes$gene_name,
+ego_df <- enrichGO(gene = x_counts$geneid,
+                   universe = genes_fpkm$gene_name,
                    keyType = "SYMBOL",
                    OrgDb = org.Hs.eg.db,
-                   ont = "BP",
+                   ont = "cc",
                    pAdjustMethod = "BH",
                    qvalueCutoff = 0.05,
                    readable = T)
 
-
-### It is different when the gene expression data is used as universe, versus when it isnt
 cluster_summary <- data.frame(ego_df)
+
+
+jpeg(filename = "./plots/15_top_cc_trained_untrained_at_midexc.jpeg",
+     width = 850, height = 700, quality = 100)
 
 dotplot(ego_df, showCategory = 15,
         
-        font.size = 8, title = "15 top ranked biological processes in coexpressed protein-coding genes between trained and untrained participants at midexercise") +
-  theme(axis.text = element_text(size = 15), axis.text.y = element_text(size = 15), axis.title.x = element_text(size = 20))
-
-
-
-
-length(unique(str_cor_t3$target))
-
-
+        font.size = 5, title = "15 top cellular components of coexpressed proteins at  midexercise") +
+  theme(axis.text = element_text(size = 15), axis.text.y = element_text(size = 15), axis.title.x = element_text(size = 10))
+dev.off()
 
 
 #get the entrezid of the unique genes
-entrez_ids <- bitr(sim_cor_t3$target, "SYMBOL", "ENTREZID", org.Hs.eg.db)
+entrez_ids <- bitr(x_counts$geneid, "SYMBOL", "ENTREZID", org.Hs.eg.db)
 
 
 #pathway overrepresentation analyses
@@ -68,75 +68,10 @@ kegg_df <- enrichKEGG(gene = entrez_ids$ENTREZID,
                       pAdjustMethod = "BH", 
                       qvalueCutoff = 0.05)
 
-#kegg_summary <- data.frame(kegg_df)
+kegg_summary <- data.frame(kegg_df)
 
-
-barplot(kegg_df, showCategory = 30, title = "30 highest enriched pathways in co-expressed protein coding genes between trained and untrained individuals at midexercise")+
-  theme(axis.text = element_text(size = 15), axis.text.y = element_text(size = 9), axis.title.x = element_text(size = 20))
-
-
-
-#keggs module overrepresentation analyses
-over_df <- enrichMKEGG(entrez_ids$ENTREZID,
-                       organism = "hsa",
-                       keyType = "kegg",
-                       # OrgDb = org.Hs.eg.db, 
-                       #ont = "MF", 
-                       pAdjustMethod = "BH", 
-                       qvalueCutoff = 0.05)
-
-
-
-barplot(over_df, showCategory = 30, title = " highest enriched pathways in co-expressed protein coding genes at baseline")+
-  theme(axis.text = element_text(size = 15), axis.text.y = element_text(size = 9), axis.title.x = element_text(size = 20))
-
-
-
-
-
-
-
-
-
-#This is the coexpression model
-less_str_cor_t3 <- readRDS("data/models/seqwrap_generated_models/trained_untrained_midexercise/filtered_less_stringent_simple_correlation_model.RDS")
-
-
-
-int_cor_t3 <- readRDS("data/models/seqwrap_generated_models/trained_untrained_midexercise/filtered_interaction_training_correlation_model.RDS")
-
-
-
-#t4 data
-less_str_cor_t4 <- readRDS("data/models/seqwrap_generated_models/filtered_t4_simple_less_string_correlation.RDS")
-
-# less_str_cor_t4$summaries[[1]]
-# 
-# 
-# temp <-  less_str_cor_t4$errors%>%
-#   
-#   mutate(err = unlist(errors_fit)) %>%
-#   
-#   
-#   
-#   pivot_longer(cols = errors_fit:warn_eval) %>%
-#   
-#   filter(name == "err_sum") %>%
-#   print()
-# 
-# unlist(temp$value)
-# 
-# x <- bind_rows(within(less_str_cor_t4$summaries, rm(LTA))) %>%
-#   subset(!coef == "(Intercept)") %>%
-#   mutate(target = rep(names(within(less_str_cor_t4$summaries, rm(LTA))), each = 37))%>%
-#   
-#   mutate(adj.p = p.adjust(Pr...t.., method = "fdr"),
-#          log2fc = Estimate/log(2),
-#          
-#          fcthreshold = if_else(abs(log2fc) > 0.5, "s", "ns")) %>%
-#   filter(fcthreshold == "s" & adj.p <= 0.05 )%>%
-#   print()
-# 
-# saveRDS(x, "data/models/seqwrap_generated_models/filtered_t4_simple_less_string_correlation.RDS")
-
-
+jpeg(filename = "./plots/15_most_enriched_pways_trained_untrained at_midexc.jpeg",
+     width = 850, height = 700, quality = 100)
+barplot(kegg_df, showCategory = 15, title = "10 most enriched pathways in co-expressed protein coding genes among trained indivuduals midexercise")+
+  theme(axis.text = element_text(size = 15), axis.text.y = element_text(size = 12), axis.title.x = element_text(size = 13))
+dev.off()

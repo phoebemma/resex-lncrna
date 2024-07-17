@@ -6,57 +6,110 @@ library(gridExtra)
 #Load the functions most regularly used
 source("R/Trainome_functions.R")
 
-
+lncRNAS <-  lncRNAS <- readRDS("data/lncRNA_genes.RDS")
 
 ct_metadata <- readRDS("data/contratrain_metadata.RDS")
 #Load the four different models
 
-#The volume model normalised with all genes
-Vol_all <- readRDS("data/models/Filtered_coefs/Vol_model_all.RDS")
+#The volume model with set 3 as baseline
+train <- readRDS("data/seqwrap_generated_models/filtered_training_model.RDS")
 
-unique(Vol_all$coef)
-
-#The volume model normalised with only lncs
-
-Vol_lncs <- readRDS("data/models/Filtered_coefs/Vol_model_lncs.RDS")
+unique(train$coef)
 
 
-
-#The training model normalised with all genes
-
-train_all <- readRDS("data/models/Filtered_coefs/training_model_all.RDS")
-
-unique(train_all$coef)
-#The training model normalised with only lncs
-
-train_lncs <- readRDS("data/models/Filtered_coefs/training_model_lncs.RDS")
+t3_train <- train %>%
+  dplyr::filter(coef == "training_statustrained:timet3") %>%
+  dplyr::filter(log2fc >= 1 | log2fc <= -1)
 
 
 
 
+#Load Volume model
+Vol <- readRDS("data/seqwrap_generated_models/filtered_vol_model_withset3_baseline.RDS")
 
+unique(Vol$coef)
 
 #Compare DE lncs at time t4 in all 4 models
-t4_vol_all <- Vol_all %>%
-  dplyr::filter(coef == "timet4") %>%
+t4_vol <- Vol %>%
+  dplyr::filter(coef == "conditionset6:timet4") %>%
   dplyr::filter(log2fc >= 1 | log2fc <= -1)
 
 
 
 #Plot it using the  plot_volcano function
-t4_vol_all_plot <- plot_volcano(t4_vol_all, "DE lncRNAs post exercise when normalised using all genes")
+t4_vol_all_plot <- plot_volcano(t4_vol, "DE lncRNAs post exercise ")
 
 
 #Reapeat same for volume_lncs
 
-t4_vol_lncs <- Vol_lncs %>%
-  dplyr::filter(coef == "timet4")%>%
+t3_vol <- Vol %>%
+  dplyr::filter(coef == "conditionset6:timet3")%>%
   dplyr::filter(log2fc >= 1 | log2fc <= -1)
 
-t4_vol_lncs_plot <- plot_volcano(t4_vol_lncs, "DE lncRNAs post exercise when normalised using only lncRNAs")
+t3_vol <- plot_volcano(t3_vol, "DE lncRNAs mid exercise")
 
 
-grid.arrange(t4_vol_all_plot, t4_vol_lncs_plot, ncol = 2)
+grid.arrange(t4_vol_all_plot, t3_vol, ncol = 2)
+
+
+
+
+
+#visualize the DE lncs
+lncs_of_int <- lncRNAS[lncRNAS$gene_name %in% t3_train$target,]
+
+
+
+
+#merge he metadata to the lncRNA data for visualization
+met_df <- lncs_of_int %>%
+  pivot_longer(cols = -("gene_name"),
+               names_to = "seq_sample_id",
+               values_to = "counts") %>%
+  inner_join(ct_metadata, by = "seq_sample_id") %>%
+  #rename the gene_name to lncRNA to avoid mixing up with the mRNA genenames
+  dplyr::rename(lncRNA = gene_name)
+
+
+
+
+
+met_df$log_counts <- log(met_df$counts)
+
+ ggplot(data = met_df, 
+               mapping = aes(x = time,
+                             y = lncRNA,
+                             fill = log_counts
+               )) +
+  geom_point() +
+  #use the PuOr color palette from colorBrewer
+  scale_fill_distiller(palette = "PuOr")+
+  #scale_fill_gradient()+
+  facet_grid(~ training_status)+
+  #set a base for all fonts
+  theme_grey(base_size=8)+
+  #add border white colour of line thickness 0.25
+  geom_tile(colour="white", size=0.25)+
+  ggtitle("Differentially expressed lncRNAs in trained individuals at mid exercise")+
+  theme(plot.title = element_text(hjust = 0.5))
+
+
+
+
+
+
+
+ 
+ met_df %>%
+   ggplot(aes(x = lncRNA, y = log_counts, colour = time)) +
+   geom_point() + 
+   #geom_hline(yintercept=0, linetype=4, color="red") +
+   facet_grid(~ condition)
+   
+
+
+
+
 
 
 
