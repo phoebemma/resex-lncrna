@@ -24,6 +24,19 @@ t3_train <- train %>%
 
 
 
+t4_train <- train %>%
+  dplyr::filter(coef == "training_statustrained:timet4") %>%
+  dplyr::filter(log2fc >= 1 | log2fc <= -1)
+
+#Plot it using the  plot_volcano function
+t4_train_plot <- plot_volcano(t4_train, "DE lncRNAs post exercise ")
+
+#Plot it using the  plot_volcano function
+t3_train_plot <- plot_volcano(t3_train, "DE lncRNAs mid exercise ")
+
+grid.arrange(t4_train_plot, t3_train_plot, ncol = 2)
+
+
 #Load Volume model
 Vol <- readRDS("data/seqwrap_generated_models/filtered_vol_model_withset3_baseline.RDS")
 
@@ -46,17 +59,17 @@ t3_vol <- Vol %>%
   dplyr::filter(coef == "conditionset6:timet3")%>%
   dplyr::filter(log2fc >= 1 | log2fc <= -1)
 
-t3_vol <- plot_volcano(t3_vol, "DE lncRNAs mid exercise")
+t3_vol_ <- plot_volcano(t3_vol, "DE lncRNAs mid exercise")
 
 
-grid.arrange(t4_vol_all_plot, t3_vol, ncol = 2)
+grid.arrange(t4_vol_all_plot, t3_vol_, ncol = 2)
 
 
 
 
 
 #visualize the DE lncs
-lncs_of_int <- lncRNAS[lncRNAS$gene_name %in% t3_train$target,]
+lncs_of_int <- lncRNAS[lncRNAS$gene_name %in% t4_vol$target,]
 
 
 
@@ -77,15 +90,15 @@ met_df <- lncs_of_int %>%
 met_df$log_counts <- log(met_df$counts)
 
  ggplot(data = met_df, 
-               mapping = aes(x = time,
+               mapping = aes(x = training_status,
                              y = lncRNA,
-                             fill = log_counts
+                             fill = counts
                )) +
   geom_point() +
   #use the PuOr color palette from colorBrewer
   scale_fill_distiller(palette = "PuOr")+
   #scale_fill_gradient()+
-  facet_grid(~ training_status)+
+  #facet_grid(~ time)+
   #set a base for all fonts
   theme_grey(base_size=8)+
   #add border white colour of line thickness 0.25

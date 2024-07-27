@@ -16,6 +16,7 @@ library(RColorBrewer)
 library(ggrepel)
 library(lme4)
 library(lmerTest)
+library(gridExtra)
 
 #load lncRNAs counts
 
@@ -145,10 +146,14 @@ unique(training_model_filt$coef)
 
 
 #Select those differentially expressed at midexercise
-t3 <- training_model_filt %>%
+t3_int <- training_model_filt %>%
   dplyr::filter(coef == "training_statustrained:timet3")%>%
   dplyr::filter(log2fc >= 1 | log2fc <= -1)
 
+
+t3 <- training_model_filt %>%
+  dplyr::filter(coef == "timet3")%>%
+  dplyr::filter(log2fc >= 1 | log2fc <= -1)
 
 #make a volcano plot using the plot_volcano function
 jpeg(filename = "./plots/DE_trained_vs_untrained_at_midexercise.jpeg",
@@ -160,12 +165,23 @@ dev.off()
 
 #Select those differentially expressed at post exercise
 t4 <- training_model_filt %>%
+  dplyr::filter(coef == "timet4")%>%
+  dplyr::filter(log2fc >= 1 | log2fc <= -1)
+
+t4_int <- training_model_filt %>%
   dplyr::filter(coef == "training_statustrained:timet4")%>%
   dplyr::filter(log2fc >= 1 | log2fc <= -1)
 
 
+t1 <- plot_volcano(t3, "DE lncRNAs at mid exercise")
+t2 <- plot_volcano(t4, "DE lncRNAs at post exercise")
+t1_int <- plot_volcano(t3_int, "DE lncRNAs between the trained and untrained at midexercise")
+t2_int <- plot_volcano(t4_int, "DE lncRNAs between trained and untrained at post exercise")
+
+grid.arrange(t1, t2, t1_int, t2_int)
+
 #make a volcano plot using the plot_volcano function
-jpeg(filename = "./plots/DE_trained_vs_untrained_postexercise.jpeg",
+jpeg(filename = "./plots/DE_trained_vs_untrained.jpeg",
      width = 850, height = 500, quality = 100)
 plot_volcano(t4, "DE lncs between trained and untrained at postexercise")
 dev.off()
@@ -207,7 +223,6 @@ met_df <- lncs_of_int %>%
   inner_join(ct_metadata, by = "seq_sample_id") %>%
   #rename the gene_name to lncRNA to avoid mixing up with the mRNA genenames
   dplyr::rename(lncRNA = gene_name)
-
 
 
 

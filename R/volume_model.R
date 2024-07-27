@@ -31,6 +31,10 @@ ct_metadata <- readRDS("data/contratrain_metadata.RDS")
 ct_metadata_reordered<- ct_metadata %>%
   mutate(condition = factor(condition, levels = c("set3", "set6", "set0")))
 
+
+ct_metadata_reordered_2<- ct_metadata %>%
+  mutate(condition = factor(condition, levels = c("set6", "set3", "set0")))
+
 #argument for model that looks at the difference between conditions over time
 args<- list(formula = y ~  efflibsize + condition*time  +(1|participant),
             family = glmmTMB::nbinom2())
@@ -41,7 +45,7 @@ args<- list(formula = y ~  efflibsize + condition*time  +(1|participant),
 volume_model<- seqwrap(fitting_fun = glmmTMB::glmmTMB,
                        arguments = args,
                        data = lncRNAS,
-                       metadata = ct_metadata_reordered,
+                       metadata = ct_metadata_reordered_2,
                        samplename = "seq_sample_id",
                        summary_fun = sum_fun,
                        eval_fun = eval_mod,
@@ -52,6 +56,8 @@ volume_model<- seqwrap(fitting_fun = glmmTMB::glmmTMB,
 
 
 #saveRDS(volume_model, "data/seqwrap_generated_models/volume_model_withset3_baseline.RDS")
+
+#saveRDS(volume_model, "data/seqwrap_generated_models/volume_model_withset6_baseline.RDS")
 mod_eval <- model_eval(volume_model)
 
 hist(mod_eval$pval.zinfl)
@@ -74,27 +80,32 @@ volume_model_filt <- filt_model_parameters(mod_eval, mod_sum)%>%
 
 #saveRDS(volume_model_filt, "data/seqwrap_generated_models/filtered_vol_model_withset3_baseline.RDS")
 
+#saveRDS(volume_model_filt, "data/seqwrap_generated_models/filtered_vol_model_withset6_baseline.RDS")
+
 unique(volume_model_filt$coef)
 
-cond6_t3 <- volume_model_filt %>%
-  dplyr::filter(coef == "conditionset6:timet3")%>%
+
+
+
+cond3_t3 <- volume_model_filt %>%
+  dplyr::filter(coef == "conditionset3:timet3")%>%
   dplyr::filter(log2fc >= 1 | log2fc <= -1)
 
-cond6_t4 <- volume_model_filt %>%
-  dplyr::filter(coef == "conditionset6:timet4")%>%
+cond3_t4 <- volume_model_filt %>%
+  dplyr::filter(coef == "conditionset3:timet4")%>%
   dplyr::filter(log2fc >= 1 | log2fc <= -1)
 
 #make a volcano plot using the plot_volcano function
-jpeg(filename = "./plots/DE_set6_with_set3_baseline_at_t3.jpeg",
+jpeg(filename = "./plots/DE_set3_with_set6_baseline_at_t3.jpeg",
      width = 850, height = 500, quality = 100)
-plot_volcano(cond6_t3, "DE lncs between set 6 and set3 at midexercise")
+plot_volcano(cond3_t3, "DE lncs between set 6 and set3 at midexercise")
 dev.off()
 
 
 #make a volcano plot using the plot_volcano function
-jpeg(filename = "./plots/DE_set6_with_set3_baseline_at_postExc.jpeg",
+jpeg(filename = "./plots/DE_set3_with_set6_baseline_at_postExc.jpeg",
      width = 850, height = 500, quality = 100)
-plot_volcano(cond6_t4, "DE lncs between set 6 and set3 at postexercise")
+plot_volcano(cond3_t4, "DE lncs between set 6 and set3 at postexercise")
 dev.off()
 
 
@@ -102,7 +113,7 @@ dev.off()
 #Extract the DE lncs of interest
 
 
-lncs_of_int <- lncRNAS[lncRNAS$gene_name %in% cond6_t4$target,]
+lncs_of_int <- lncRNAS[lncRNAS$gene_name %in% cond3_t4$target,]
 
 
 
@@ -218,8 +229,6 @@ for(i in seq_along(LR)) {
   summary_results[[i]] <- bind_rows(within(vol_cor_model$summaries, rm(excl))) %>%
     mutate(geneid = rep(geneids, each = 7)) %>%
     mutate(lncRNA =LR[i])
-  
- 
   
 }
 

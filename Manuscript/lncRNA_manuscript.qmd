@@ -11,23 +11,45 @@ target_journal: https://www.tandfonline.com/journals/krnb20
 prefer-html: true
 ---
 
-## Abstract 
+```{r, setup, include=FALSE}
+
+knitr::opts_knit$set(root.dir = "C:/projects/resex-lncrna/")
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+
+```
+
+```{r, libraries , echo=FALSE}
+source("R/Trainome_functions.R")
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+library(RColorBrewer)
+library(ggrepel)
+library(lme4)
+library(lmerTest)
+library(gridExtra)
+library(clusterProfiler)
+library(org.Hs.eg.db)
+
+```
+
+## Abstract
 
 ## Introduction
 
 The skeletal muscle is important for physical health and vitality. It responds to both use and disuse by hypertrophying, and loss of muscle strength and mass respectively [@lim_evidence-based_2022; @khan_increased_2020 ]. Human age correlates to loss of muscle mass and strength [@power_human_2013; @volpi_muscle_2004 ] which in turn correlates to the risks of falls, injuries and impaired mobility @wolfson_strength_1995 . Certain disease conditions like chronic obstructive pulmonary disease (COPD) could also accelerate loss in muscle mass and strength @molmen_chronic_2021 . Thus, muscle strength and mass are important for improved quality of life.
 
-Progressive resistance exercise training (RT); a type of exercise where the skeletal muscle is exercised against progressively increased types of resistance @liu_progressive_2009 such as free weights , is the most potent non-pharmacological method of stimulating muscle hypertrophy and countering the loss in muscle strength and mass [@lim_evidence-based_2022; @hurst_resistance_2022] . RT has been shown to reduce blood glucose levels [@xie_effects_2022; @westcott_resistance_2012] improve strength and performance in older adults @liu_progressive_2009 and in children with celebral palsy @hanssen_progressive_2022 , improve health status and pain intensity in women with fibromyalgia [@larsson_resistance_2015; @busch_resistance_2013] , counteract the adverse effects of anrogen deprivation therapy in prostate cancer patients @houben_resistance_2023 , as well as decrease menopause-related symptoms @berin_resistance_2019. The benefits of RT extend beyond physical health to include the mental well being of participants @kekalainen_effects_2018 and correlate to the volume of RT done @hammarstrom_benefits_2020 . Besides volume, factors such as ribosome biogenesis, transcriptome profile and responses, metabolites profile etc determine an individual's response to RT [@lim_evidence-based_2022; @hammarstrom_ribosome_2022].
+Progressive resistance exercise training (RT); a type of exercise where the skeletal muscle is exercised against progressively increased types of resistance @liu_progressive_2009 such as free weights , is the most potent non-pharmacological method of stimulating muscle hypertrophy and countering the loss in muscle strength and mass [@lim_evidence-based_2022; @hurst_resistance_2022] . RT has been shown to reduce blood glucose levels [@xie_effects_2022; @westcott_resistance_2012] improve strength and performance in older adults @liu_progressive_2009 and in children with celebral palsy @hanssen_progressive_2022 , improve health status and pain intensity in women with fibromyalgia [@larsson_resistance_2015; @busch_resistance_2013] , counteract the adverse effects of androgen deprivation therapy in prostate cancer patients @houben_resistance_2023 , as well as decrease menopause-related symptoms @berin_resistance_2019. The benefits of RT are dependent on the volume @hammarstrom_benefits_2020 and extend beyond physical health to include the mental well being of participants @kekalainen_effects_2018 . Besides volume, factors such as ribosome biogenesis, transcriptome profile and responses, metabolites profile *etc* determine an individual's response to RT [@lim_evidence-based_2022; @hammarstrom_ribosome_2022].
 
 Numerous studies have reported the gene expression patterns following RT, but how these patterns are regulated is poorly understood. Understanding these could also help understand the factors regulating response to RT. Long non-coding RNAs (lncRNAs) are said to regulate the expression of protein-coding genes [@statello_gene_2021; @doi:10.1177/2472630318780639] as well as different aspects of cellular physiology and function [@oo_long_2022; @bridges_lnccation_2021] . lncRNAs are non-protein-coding RNAs of more than 200 nucleotides in length. Most lncRNAs have low levels of expression and sequence conservation @mattick_long_2023 , their expressions however are highly tissue and condition-specific [@statello_gene_2021; @bonilauri_long_2020; @ali_beyond_2020] . Over 240,000 lncRNAs in humans have been curated @10.1093/nar/gky960 even though not much is known about the functional roles of a majority of them @ali_beyond_2020 . Some have been reported to play roles in cell cycle regulation @kitagawa_cell_2013 , differentiation @delas_lncrna_2017 , metabolism @sirey_long_2019 , and muscle regeneration @sweta_importance_2019 . There is currently significant uncertainty about the mechanisms of actions of most lncRNAs. Figuring out lncRNAs that are differentially expressed in a given condition could thus be the first in a series of steps aimed towards elucidating their functions and mechanisms of action.
 
-Most publicly available research on this group of RNAs are focused on their roles in diseases, especially cancers, . Relatively much less like @bonilauri_long_2020 are available on their roles in health promotion. It perhaps pertinent to investigate the possible functional roles of lncRNAs in health promoting activities like RT. This knowledge could not only contribute towards a deeper understanding of the mechanisms of response to RT, but perhaps optimizing the benefits as well as personalizing an individual's RT regimen.
+Most publicly available research on this group of RNAs are focused on their roles in diseases, especially cancers, . Relatively much less like @bonilauri_long_2020 are available on their roles in health promotion. It is perhaps pertinent to investigate the possible functional roles of lncRNAs in health promoting activities like RT. This knowledge could not only contribute towards a deeper understanding of the mechanisms of response to RT, but perhaps optimizing the benefits as well as personalizing an individual's RT regimen.
 
 This study aims to identify lncRNAs that are differentially expressed following RT based on exercise conditions, that is, between the trained and untrained, and between RT volumes among the trained. The study hopes to enhance the current knowledge about the responses to RT and how these can be optimized and personalized for individual participants.
 
 ## Methods
 
-### Study design, RNA extraction and sequencing 
+### Study design, RNA extraction and sequencing
 
 Study design , sample preparation and RNA sequencing were done as described by Hamarsland et al (in_view).
 
@@ -37,18 +59,18 @@ The quality of the RNA sequences was checked using FastQc (v0.11.5) @andrews2012
 
 #### Models and visualization
 
-Using BiomaRt @durinck_mapping_2009 , all genes annotated as lncRNA by the Ensemble database were filtered for downstream analyses. A total of 1024 lncRNAs were included in the analyses. These lncRNA counts were modeled using negative binomial GLMM (Generalized Linear Mixed Model) with the effective library size and time as fixed effects. Each participant was used as random effect having an individual intercept. To analyse the effect of RT over time, the trained legs were regarded as one and differential expression of lncRNA between the trained and the untrained contralateral leg was evaluated with the interaction between training status and time added to the fixed effects. To analyse the volume-dependent effects of RT on lncRNA expression, the interaction between the different training conditions and time were added to the fixed effects. Both model types were iteratively fitted using glmmTMB in Seqwrap , an R package built by Hammastrom et al (in view). All models were evaluated for uniformity and dispersion using DHARma (0.4.6). lncRNAs were identified as differentially expressed when their absolute log2 fold change was greater than 1 or less than -1, their adjusted p-values equal to or less than 0.05, and the p values of their model's uniformity and dispersion test above 0.05
+Using BiomaRt @durinck_mapping_2009 , all genes annotated as lncRNA by the Ensemble database were filtered for downstream analyses. A total of 1024 lncRNAs were included in the analyses. These lncRNA counts were modeled using negative binomial GLMM (Generalized Linear Mixed Model) with the effective library size and time as fixed effects. Each participant was used as random effect having an individual intercept. To analyse the effect of RT over time, the trained legs were regarded as one and differential expression of lncRNA between the trained and the untrained contralateral leg was evaluated with the interaction between training status and time added to the fixed effects. To analyse the volume-dependent effects of RT on lncRNA expression, the interaction between the different training conditions and time were added to the fixed effects. Both model types were iteratively fitted using glmmTMB in Seqwrap , an R package built by Hammastrom et al (in view). All models were evaluated for uniformity and dispersion using DHARma (0.4.6). lncRNAs were identified as differentially expressed when their absolute log2 fold change was greater than 1 or less than -1, their adjusted p-values equal to or less than 0.05, and the p values of their model's uniformity and dispersion test above 0.05. All the DE lncRNAs based on interaction effects of training status, and RT conditions were individually researched in publicly available literature to ascertain curren knowledge about them
 
-####  Coexpression analyses
+#### Coexpression analyses
 
-To understand the potential functions of the differentially expressed lncRNAs, coexpressed protein-coding genes were modeled and iteratively fitted using lmer @bates_fitting_2015 in Seqwrap . Each lncRNA count, time, condition, and sex of participants were used as fixed effects, while each participant was used as random effect with a fixed intercept. Coexpressed proteins were identified as those with adjusted p values aboe or at 0.05 and p values of their DHaRma uniformity test above 0.05. Gene ontology and KEGG gene sets of the coexpressed protein-coding genes were retrieved from org.Hs.eg.db
+To understand the potential functions of the differentially expressed lncRNAs, coexpressed protein-coding genes were modeled and iteratively fitted using lmer @bates_fitting_2015 in Seqwrap . Each lncRNA count, time, condition, and sex of participants were used as fixed effects, while each participant was used as random effect with a fixed intercept. Coexpressed proteins were identified as those with adjusted p values above or at 0.05 and p values of their DHaRma uniformity test above 0.05. Gene ontology and KEGG gene sets of the coexpressed protein-coding genes were retrieved from org.Hs.eg.db
 
 ```{r Steps_analyses, fig.cap="Flow diagram sowing steps in analysis", fig.align = "right", echo=FALSE}
 
 DiagrammeR::grViz("digraph {
   graph [layout = dot, rankdir = TB]
-  
-  node [shape = rectangle]        
+
+  node [shape = rectangle]
   rec1 [label = 'Quality check (FastQC)']
   rec2 [label = 'Mapping to Human genome (GRCh 38)']
   rec3 [label =  'Read Counts (RSEM)']
@@ -56,7 +78,7 @@ DiagrammeR::grViz("digraph {
   rec5 [label = 'Correlation analyses using lmer']
   rec6 [label = 'Gene set enrichment analyses']
 
-  
+
   # edge definitions with the node IDs
   rec1 -> rec2 -> rec3 -> rec4 -> rec5 -> rec6
   }",
@@ -64,63 +86,332 @@ DiagrammeR::grViz("digraph {
 
 ```
 
-```         
-```
-
-```         
-```
-
 ## Results and Discussion
 
 #### Trained versus untrained
 
-15 lncRNAs were differentially expressed between the trained and untrained legs at midexercise, while only one lncRNA was differentially expressed by the end of the training regimen.
+15 lncRNAs were differentially expressed (DE) between the trained and untrained legs at midexercise see Table \\ref(tab: DE_midexercise) , while only eight were differentially expressed by the end of the training regimen see Table \\ref(tab: DE_postexercise). The interaction effect between the training status of the participant's leg and time showed 15 DE lncRNAs at midexercise and 1 at postexercise as shown in the tables. While the role of many lncRNAs are yet to be understood, some of the DE lncRNAs had been reported to play roles in certain disease conditions, especially cancers
+
+MEF2C-AS1 was upregulated at midexercise. It is reportedly downregulated significantly in gastric cancer @luo2018, cervical cancer \[ @guo2022; @wang2021 \]. It plays tumour suppressor roles during tumorigenesis @qian2022. Its overexpression inhibited cervical cancer @wang2021. It among five lncRNAs that could predict prognosis in breast cancer patients. @luo2022
+
+ARRDC3-AS1 was upregulated among trained legs but was downregulated in lung cancer @shah2024 @yu2020
+
+LINC00702 was quite lowly expressed in colorectal cancer tissues @yu2020 and in lung cancer @yu2019
+
+PKN2-AS1 is overexpressed in sepsis @yuan2022
+
+overexpression of NPSR1-AS1 is a marker of shorter disease-specific survival or overall survival in lung adenocarcinoma @zhang2022 and promotes the proliferation and glycolysis of hepatocellular carcinoma cells @he2020
+
+explore the coexpressed proteins to linc00390
+
+For the 15 DE lncRNAs at midexercise (interaction effect), 719 protein-coding genes were correlated to their expression. The gene ontology results of the coexpressed proteins are as shown in \ref(fig:Correlation_plot_bp), \ref(fig:Correlation_plot_mf) and \ref(fig:Correlation_plot_cc)
+
+For the post exercise interaction model, the expression of 184 protein-coding genes correlated with the lncRNA. The gene ontology and Kegg enrichment plot are as shown in
 
 Using our method of finding correlations between the expression of lncs and protein-coding genes,
 
-```{r, DE midexercise, echo=FALSE}
+```{r, DE_midexercise, echo=FALSE}
 
-df <- readRDS("/data/seqwrap_generated_models/filtered_training_model.RDS")
+df <- readRDS("data/seqwrap_generated_models/filtered_training_model.RDS")
 t3 <- df %>%
-  dplyr::filter(coef == "training_statustrained:timet3")%>%
+  dplyr::filter(coef == "timet3")%>%
   dplyr::filter(log2fc >= 1 | log2fc <= -1) %>%
-  select(target,adj.p, log2fc, pval.unif, pval.disp )
+  dplyr::select(target,adj.p, log2fc, pval.unif, pval.disp )
 knitr::kable(t3, caption ="Differentially expressed lncRNAs halfway through the training program" )
+
+
+t3_int <- df %>%
+  dplyr::filter(coef == "training_statustrained:timet3")%>%
+  dplyr::filter(log2fc >= 1 | log2fc <= -1)%>%
+  dplyr::select(target,adj.p, log2fc, pval.unif, pval.disp )
+knitr::kable(t3_int, caption ="Differentially expressed lncRNAs halfway through the training program among trained legs" )
+
+
+
 ```
 
-```{r,DE postexercise,  echo=FALSE}
+```{r,DE_postexercise,  echo=FALSE}
 
 t4 <- df %>%
+  dplyr::filter(coef == "timet4")%>%
+  dplyr::filter(log2fc >= 1 | log2fc <= -1)%>%
+  dplyr::select(target,adj.p, log2fc, pval.unif, pval.disp )
+knitr::kable(t4, caption = "DE lncRNAs between the trained and untrained legs postexercise" )
+
+t4_int <- df %>%
   dplyr::filter(coef == "training_statustrained:timet4")%>%
   dplyr::filter(log2fc >= 1 | log2fc <= -1)%>%
-  select(target,adj.p, log2fc, pval.unif, pval.disp )
-knitr::kable(t4, caption = "DE lncRNAs between the trained and untrained legs postexercise" )
+  dplyr::select(target,adj.p, log2fc, pval.unif, pval.disp )
+knitr::kable(t4_int, caption = "DE lncRNAs between the trained and untrained legs postexercise among trained legs" )
+
 ```
 
-DUXAP9 was downregulated in the trained leg postexercise. Its overexpression has been linked to different cancers [@zhu2018; @chen2019; @zhu2019] . DUXAP9's expression according to the model, correlated with the expression of 184 protein-coding genes.
+DUXAP9 was downregulated in the trained leg postexercise. Its overexpression has been linked to different cancers [@zhu2018; @chen2019; @zhu2019] . DUXAP9's expression according to the model, correlated with the expression of 184 protein-coding genes. see Figure \@ref(fig:Volcano_plot_a)
 
 The 15 lncRNAs at mid exercise correlated to 719 protein coding genes
 
+```{r, Volcano_plot_a, echo=FALSE}
+t3_int <- df %>%
+  dplyr::filter(coef == "training_statustrained:timet3")#%>%
+  #dplyr::filter(log2fc >= 1 | log2fc <= -1)
+
+
+t3 <- df %>%
+  dplyr::filter(coef == "timet3")#%>%
+  #dplyr::filter(log2fc >= 1 | log2fc <= -1)
+
+  t4 <- df %>%
+  dplyr::filter(coef == "timet4")#%>%
+  #dplyr::filter(log2fc >= 1 | log2fc <= -1)
+
+t4_int <- df %>%
+  dplyr::filter(coef == "training_statustrained:timet4")#%>%
+  #dplyr::filter(log2fc >= 1 | log2fc <= -1)
+  
+
+t1 <- plot_volcano(t3, "DE lncRNAs at mid exercise")
+t2 <- plot_volcano(t4, "DE lncRNAs at post exercise")
+t1_int <- plot_volcano(t3_int, "DE lncRNAs between the trained and untrained at midexercise")
+t2_int <- plot_volcano(t4_int, "DE lncRNAs between trained and untrained at post exercise")
+
+grid.arrange(t1, t2, t1_int, t2_int)
+```
+
+```{r, Correlation_plot_cc, echo=FALSE}
+
+train_cor <- readRDS("data/seqwrap_generated_models/training_coexpression_models/mid_exc_correlation_counts.RDS")
+genes_fpkm <- readRDS("data/Ct_genes_FPKM.RDS")
+
+
+ego_df <- enrichGO(gene = train_cor$geneid,
+                   universe = genes_fpkm$gene_name,
+                   keyType = "SYMBOL",
+                   OrgDb = org.Hs.eg.db,
+                   ont = "cc",
+                   pAdjustMethod = "BH",
+                   qvalueCutoff = 0.05,
+                   readable = T)
+
+dotplot(ego_df, showCategory = 15,
+        
+        font.size = 5, title = "15 top cellular components of coexpressed proteins at  midexercise of trained legs") +
+  theme(axis.text = element_text(size = 8), axis.text.y = element_text(size = 8), axis.title.x = element_text(size = 8))
+```
+
+```{r, correlation_plot_bp, echo=FALSE}
+ego_df_2 <- enrichGO(gene = train_cor$geneid,
+                   universe = genes_fpkm$gene_name,
+                   keyType = "SYMBOL",
+                   OrgDb = org.Hs.eg.db,
+                   ont = "BP",
+                   pAdjustMethod = "BH",
+                   qvalueCutoff = 0.05,
+                   readable = T)
+
+dotplot(ego_df_2, showCategory = 15,
+        
+        font.size = 5, title = "15 top Biological processes of coexpressed proteins at  midexercise of trained legs") +
+  theme(axis.text = element_text(size = 8), axis.text.y = element_text(size = 8), axis.title.x = element_text(size = 8))
+
+```
+
+```{r, correlation_plot_mf, echo=FALSE}
+ego_df_3 <- enrichGO(gene = train_cor$geneid,
+                   universe = genes_fpkm$gene_name,
+                   keyType = "SYMBOL",
+                   OrgDb = org.Hs.eg.db,
+                   ont = "MF",
+                   pAdjustMethod = "BH",
+                   qvalueCutoff = 0.05,
+                   readable = T)
+
+dotplot(ego_df_3, showCategory = 15,
+        
+        font.size = 5, title = "15 top Molecuar functions of coexpressed proteins at  midexercise of trained legs") +
+  theme(axis.text = element_text(size = 8), axis.text.y = element_text(size = 8), axis.title.x = element_text(size = 8))
+```
+
+```{r, gene_enrichemnt_mid, echo=FALSE}
+entrez_ids <- bitr(train_cor$geneid, "SYMBOL", "ENTREZID", org.Hs.eg.db)
+
+
+#pathway overrepresentation analyses
+kegg_df <- enrichKEGG(gene = entrez_ids$ENTREZID,
+                      organism = "hsa",
+                      keyType = "kegg",
+                      # OrgDb = org.Hs.eg.db, 
+                      #ont = "MF", 
+                      pAdjustMethod = "BH", 
+                      qvalueCutoff = 0.05)
+
+
+barplot(kegg_df, showCategory = 15, title = "10 most enriched pathways in co-expressed protein coding genes among trained indivuduals at midexercise")+
+  theme(axis.text = element_text(size = 8), axis.text.y = element_text(size = 8), axis.title.x = element_text(size = 8))
+```
+
+```{r, correlations_postexercise, echo=FALSE}
+train_post <- readRDS("data/seqwrap_generated_models/training_coexpression_models/post_exc_correlation_counts.RDS")
+
+ego_df_4 <- enrichGO(gene = train_post$geneid,
+                   universe = genes_fpkm$gene_name,
+                   keyType = "SYMBOL",
+                   OrgDb = org.Hs.eg.db,
+                   ont = "MF",
+                   pAdjustMethod = "BH",
+                   qvalueCutoff = 0.05,
+                   readable = T)
+
+dotplot(ego_df_4, showCategory = 15,
+        
+        font.size = 5, title = "15 top Molecuar functions of coexpressed proteins at  postexercise of trained legs") +
+  theme(axis.text = element_text(size = 8), axis.text.y = element_text(size = 8), axis.title.x = element_text(size = 8))
+
+
+ego_df_5 <- enrichGO(gene = train_post$geneid,
+                   universe = genes_fpkm$gene_name,
+                   keyType = "SYMBOL",
+                   OrgDb = org.Hs.eg.db,
+                   ont = "BP",
+                   pAdjustMethod = "BH",
+                   qvalueCutoff = 0.05,
+                   readable = T)
+
+dotplot(ego_df_5, showCategory = 15,
+        
+        font.size = 5, title = "15 top Biological processes of coexpressed proteins at  postexercise of trained legs") +
+  theme(axis.text = element_text(size = 8), axis.text.y = element_text(size = 8), axis.title.x = element_text(size = 8))
+
+
+ego_df_6 <- enrichGO(gene = train_post$geneid,
+                   universe = genes_fpkm$gene_name,
+                   keyType = "SYMBOL",
+                   OrgDb = org.Hs.eg.db,
+                   ont = "cc",
+                   pAdjustMethod = "BH",
+                   qvalueCutoff = 0.05,
+                   readable = T)
+
+dotplot(ego_df_6, showCategory = 15,
+        
+        font.size = 5, title = "15 top cellular components of coexpressed proteins at  postexercise of trained legs") +
+  theme(axis.text = element_text(size = 8), axis.text.y = element_text(size = 8), axis.title.x = element_text(size = 8))
+
+
+
+entrez_ids <- bitr(train_post$geneid, "SYMBOL", "ENTREZID", org.Hs.eg.db)
+
+
+#pathway overrepresentation analyses
+kegg_df <- enrichKEGG(gene = entrez_ids$ENTREZID,
+                      organism = "hsa",
+                      keyType = "kegg",
+                      # OrgDb = org.Hs.eg.db, 
+                      #ont = "MF", 
+                      pAdjustMethod = "BH", 
+                      qvalueCutoff = 0.05)
+
+
+barplot(kegg_df, showCategory = 15, title = "10 most enriched pathways in co-expressed protein coding genes among trained indivuduals at postexercise")+
+  theme(axis.text = element_text(size = 8), axis.text.y = element_text(size = 8), axis.title.x = element_text(size = 8))
+```
+
 #### Volume specific benefits
 
-14 and 15 lncRNAs were differentially expressed at post and mid exercise respectively between the legs performed 3 sets and 6 sets of RT respectively
+16 and 18 lncRNAs were differentially expressed at post and mid exercise respectively between the legs performed 3 sets and 6 sets of RT respectively, while based on interaction effects. The interaction with set 6 had 15 lncs and 14 lns at post and mid exercise respectively. At midexercise, the DE lncRNAs correlated with 1543 protein coding genes
 
-There is a poor understanding of the lncRNA functions owing to their relative low expressions , weak conservation and the relative less research into them @uszczynska-ratajczak_towards_2018
+```{r, set6_correlation_midexc, echo=FALSE}
+vol6_df <- readRDS("data/seqwrap_generated_models/volume_coexpression_models/set6_midexc_counts.RDS")
+
+cor_df <- enrichGO(gene = vol6_df$geneid,
+                   universe = genes_fpkm$gene_name,
+                   keyType = "SYMBOL",
+                   OrgDb = org.Hs.eg.db,
+                   ont = "cc",
+                   pAdjustMethod = "BH",
+                   qvalueCutoff = 0.05,
+                   readable = T)
+
+dotplot(cor_df, showCategory = 15,
+        
+        font.size = 5, title = "15 top cellular components of coexpressed proteins at  midexercise of set6 legs") +
+  theme(axis.text = element_text(size = 8), axis.text.y = element_text(size = 8), axis.title.x = element_text(size = 8))
+
+
+
+cor_df <- enrichGO(gene = vol6_df$geneid,
+                   universe = genes_fpkm$gene_name,
+                   keyType = "SYMBOL",
+                   OrgDb = org.Hs.eg.db,
+                   ont = "MF",
+                   pAdjustMethod = "BH",
+                   qvalueCutoff = 0.05,
+                   readable = T)
+
+dotplot(cor_df, showCategory = 15,
+        
+        font.size = 5, title = "15 top molecular functions of coexpressed proteins at  midexercise of set6 legs") +
+  theme(axis.text = element_text(size = 8), axis.text.y = element_text(size = 8), axis.title.x = element_text(size = 8))
+
+
+cor_df <- enrichGO(gene = vol6_df$geneid,
+                   universe = genes_fpkm$gene_name,
+                   keyType = "SYMBOL",
+                   OrgDb = org.Hs.eg.db,
+                   ont = "BP",
+                   pAdjustMethod = "BH",
+                   qvalueCutoff = 0.05,
+                   readable = T)
+
+dotplot(cor_df, showCategory = 15,
+        
+        font.size = 5, title = "15 top biological processes of coexpressed proteins at  midexercise of set6 legs") +
+  theme(axis.text = element_text(size = 8), axis.text.y = element_text(size = 8), axis.title.x = element_text(size = 8))
+
+
+
+entrez_ids <- bitr(cor_df$geneid, "SYMBOL", "ENTREZID", org.Hs.eg.db)
+
+
+#pathway overrepresentation analyses
+kegg_df <- enrichKEGG(gene = entrez_ids$ENTREZID,
+                      organism = "hsa",
+                      keyType = "kegg",
+                      # OrgDb = org.Hs.eg.db, 
+                      #ont = "MF", 
+                      pAdjustMethod = "BH", 
+                      qvalueCutoff = 0.05)
+
+
+barplot(kegg_df, showCategory = 15, title = "10 most enriched pathways in co-expressed protein coding genes among set6 legs at midexercise")+
+  theme(axis.text = element_text(size = 8), axis.text.y = element_text(size = 8), axis.title.x = element_text(size = 8))
+
+```
+
+#### Potential functional characterization of the differentially expressed lncRNAs
+
+There is a poor understanding of the lncRNA functions owing to their relative low expressions , weak conservation and the relative less research into them @uszczynska-ratajczak_towards_2018. Most functional characterisation of lncRNAs used the "guilty by association" method of infering the functions of lncRNAs by the function of protein-coding genes with correlated expression [@bonilauri2020; @chapman2022, @seifuddin2020]. This method assumes that expression patterns encode functionality @uszczynska-ratajczak_towards_2018
 
 lncRNAs act as regulators of different mechanisms in the cell cycle @kitagawa_cell_2013 , @khan_distinct_2023
-
-correlations in gene expression are used to infer the functions of genes @chapman_correlated_2022 , @seifuddin_lncrnakb_2020 . This guilt by association method assumes that expression patterns encode functionality @uszczynska-ratajczak_towards_2018
 
 lncRNA research would most likely help understanding the underlying mechanisms that influence the benefits accrued from PRET
 
 functionality of lncRNAs should be studied using wet-lab based methods. The increasing knowledge and access to computational methods for gene expression studies makes it easier to begin somewhere, by filtering a few lncRNAs from the thousands fom where to begin the studies.
 
-While this study does not enforce predictions of the functional roles of lncRNAs, it provides pointers towards lncRNAs of interest and perhaps points to areas where we could further enhance the understanding of the regulatory landscape of PRET and its benefits
+While this study does not enforce predictions of the functional roles of lncRNAs, it provides pointers towards lncRNAs of interest and perhaps points to areas where we could further enhance the understanding of the regulatory landscape of PRET and its benefits.
+
+## Conclusion
+
+The roles of lncRNAs should be explored beyond diseases.
+
+@bonilauri_long_2020 showed that several lncRNAs are differentially expressed after different exercise training programs , with RT leading to 28 upregulated lncRNAs and 15 downregulated lncRNAs . This work was aimed at investigating which lncRNAs were differentially expressed in young individuals following about 12 weeks of RT.
+
+RT leads to the change in expression of certain genes overtime, with the specific RT condition mediating specific expressions. These computationally derived results will need to be validated using wet lab methods. To validate the functional roles of these DE lncRNAs, *in vitro* studies involving their manipulation is encouraged. Also, it might be pertinent to study them as they relate to muscle strength and/of muscle gain, both of which are measurable impacts of RT
 
 # References
 
 ::: {#refs}
 :::
+
 :::
 
 # 

@@ -1,0 +1,27 @@
+---
+title: "Flow chart of methodology"
+format: pptx
+editor: visual
+---
+
+## Data analyses steps
+
+```{r Steps_analyses, fig.cap="Flow diagram sowing data analyses steps", fig.align = "right", echo=FALSE}
+
+DiagrammeR::grViz("digraph {
+  graph [layout = dot, rankdir = TB]
+  
+  node [shape = rectangle]        
+  rec1 [label = 'Quality check (FastQC)']
+  rec2 [label = 'Reading counts mapped to Human genome (GRCh 38)']
+  rec3 [label = 'Extraction of genes annotated as lncRNA by Ensemble']
+  rec3 [label = 'Differential lncRNA expression analyses using GLMM']
+  rec4 [label = 'Correlation analyses using lmer']
+  rec5 [label = 'Gene set enrichment analyses']
+
+  
+  # edge definitions with the node IDs
+  rec1 -> rec2 -> rec3 -> rec4 -> rec5 
+  }",
+  height = 500)
+```
