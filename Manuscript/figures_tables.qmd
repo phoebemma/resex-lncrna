@@ -1,0 +1,85 @@
+---
+title: "Figures and tables lncRNA"
+format: docx
+output:
+  bookdown::word_document2: default
+  bookdown::pdf_documents: default
+editor: visual
+csl: science.csl
+bibliography: My_Library.bib
+target_journal: https://www.tandfonline.com/journals/krnb20
+prefer-html: true
+---
+
+```{r, setup, include=FALSE}
+
+knitr::opts_knit$set(root.dir = "C:/projects/resex-lncrna/")
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+
+```
+
+```{r, libraries , echo=FALSE}
+source("R/Trainome_functions.R")
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+library(RColorBrewer)
+library(ggrepel)
+library(lme4)
+library(lmerTest)
+library(gridExtra)
+library(clusterProfiler)
+library(org.Hs.eg.db)
+
+
+
+
+
+```
+
+```{r Steps_analyses, fig.cap="Flow diagram sowing data analyses steps", fig.align = "right", echo=FALSE}
+
+DiagrammeR::grViz("digraph {
+  graph [layout = dot, rankdir = TB]
+  
+  node [shape = rectangle]        
+  rec1 [label = 'Quality check (FastQC)']
+  rec2 [label = 'Reading counts mapped to Human genome (GRCh 38)']
+  rec3 [label = 'Extraction of genes annotated as lncRNA by Ensemble']
+  rec3 [label = 'Differential lncRNA expression analyses using GLMM']
+  rec4 [label = 'Correlation analyses using lmer']
+  rec5 [label = 'Gene set enrichment analyses']
+
+  
+  # edge definitions with the node IDs
+  rec1 -> rec2 -> rec3 -> rec4 -> rec5 
+  }",
+  height = 500)
+```
+
+```{r, Volcano_plot_a, echo=FALSE}
+t3_int <- df %>%
+  dplyr::filter(coef == "training_statustrained:timet3")#%>%
+  #dplyr::filter(log2fc >= 1 | log2fc <= -1)
+
+
+t3 <- df %>%
+  dplyr::filter(coef == "timet3")#%>%
+  #dplyr::filter(log2fc >= 1 | log2fc <= -1)
+
+  t4 <- df %>%
+  dplyr::filter(coef == "timet4")#%>%
+  #dplyr::filter(log2fc >= 1 | log2fc <= -1)
+
+t4_int <- df %>%
+  dplyr::filter(coef == "training_statustrained:timet4")#%>%
+  #dplyr::filter(log2fc >= 1 | log2fc <= -1)
+  
+
+t1 <- plot_volcano(t3, "DE lncRNAs at mid exercise")
+t2 <- plot_volcano(t4, "DE lncRNAs at post exercise")
+t1_int <- plot_volcano(t3_int, "DE lncRNAs between the trained and untrained at midexercise")
+t2_int <- plot_volcano(t4_int, "DE lncRNAs between trained and untrained at post exercise")
+
+grid.arrange(t1, t2, t1_int, t2_int)
+```
