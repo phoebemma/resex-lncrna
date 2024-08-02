@@ -386,7 +386,7 @@ barplot(kegg_df, showCategory = 15, title = "10 most enriched pathways in co-exp
 
 #### Potential functional characterization of the differentially expressed lncRNAs
 
-There is a poor understanding of the lncRNA functions owing to their relative low expressions , weak conservation and the relative less research into them @uszczynska-ratajczak_towards_2018. Most functional characterisation of lncRNAs used the "guilty by association" method of infering the functions of lncRNAs by the function of protein-coding genes with correlated expression [@bonilauri2020; @chapman2022, @seifuddin2020]. This method assumes that expression patterns encode functionality @uszczynska-ratajczak_towards_2018
+There is a poor understanding of the lncRNA functions owing to their relative low expressions , weak conservation and relatively less research into them @uszczynska-ratajczak_towards_2018. The method functional characterization of lncRNAs use the "guilty by association" method of inferring the functions of lncRNAs by the function of protein-coding genes with correlated expression [@bonilauri2020; @chapman2022, @seifuddin2020]. This method assumes that expression patterns encode functionality @uszczynska-ratajczak_towards_2018
 
 lncRNAs act as regulators of different mechanisms in the cell cycle @kitagawa_cell_2013 , @khan_distinct_2023
 

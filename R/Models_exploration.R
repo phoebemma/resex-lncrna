@@ -9,67 +9,193 @@ source("R/Trainome_functions.R")
 lncRNAS <-  lncRNAS <- readRDS("data/lncRNA_genes.RDS")
 
 ct_metadata <- readRDS("data/contratrain_metadata.RDS")
-#Load the four different models
-
-#The volume model with set 3 as baseline
-train <- readRDS("data/seqwrap_generated_models/filtered_training_model.RDS")
-
-unique(train$coef)
-
-
-t3_train <- train %>%
-  dplyr::filter(coef == "training_statustrained:timet3") %>%
-  dplyr::filter(log2fc >= 1 | log2fc <= -1)
-
-
-
-
-t4_train <- train %>%
-  dplyr::filter(coef == "training_statustrained:timet4") %>%
-  dplyr::filter(log2fc >= 1 | log2fc <= -1)
-
-#Plot it using the  plot_volcano function
-t4_train_plot <- plot_volcano(t4_train, "DE lncRNAs post exercise ")
-
-#Plot it using the  plot_volcano function
-t3_train_plot <- plot_volcano(t3_train, "DE lncRNAs mid exercise ")
-
-grid.arrange(t4_train_plot, t3_train_plot, ncol = 2)
-
+#Load the different volume models
 
 #Load Volume model
-Vol <- readRDS("data/seqwrap_generated_models/filtered_vol_model_withset3_baseline.RDS")
+Vol <- readRDS("data/seqwrap_generated_models/filtered_volume_model.RDS")
 
 unique(Vol$coef)
 
-#Compare DE lncs at time t4 in all 4 models
-t4_vol <- Vol %>%
+
+#The volume model with set 3 as baseline
+vol_3_base <- readRDS("data/seqwrap_generated_models/filtered_vol_model_withset3_baseline.RDS")
+
+unique(vol_3_base$coef)
+
+
+#The volume model with set6 as baseline
+vol_6_baseline <- readRDS("data/seqwrap_generated_models/filtered_vol_model_withset6_baseline.RDS")
+
+unique(vol_6_baseline$coef)
+
+#plot a grid volcano of the time 4 in the three models
+
+
+t4<- vol %>%
+  dplyr::filter(coef == "timet4") %>%
+  dplyr::filter(log2fc >= 1 | log2fc <= -1)
+
+
+
+
+t4_3_base <- vol_3_base%>%
+  dplyr::filter(coef == "timet4") %>%
+  dplyr::filter(log2fc >= 1 | log2fc <= -1)
+
+
+
+t4_6_base <- vol_6_baseline%>%
+  dplyr::filter(coef == "timet4") %>%
+  dplyr::filter(log2fc >= 1 | log2fc <= -1)
+
+
+#Plot it using the  plot_volcano function
+t4_vol_plot <- plot_volcano(t4, "DE lncRNAs post exercise set0 base")
+
+#Plot it using the  plot_volcano function
+t4_3_plot <- plot_volcano(t4_3_base, "DE lncRNAs postexercise set3 base ")
+
+t4_6_plot <- plot_volcano(t4_6_base, "DE lncRNAs set6 base")
+
+grid.arrange(t4_vol_plot, t4_3_plot, t4_6_plot)
+
+
+
+#Compare DE lncs interaction between set6 and postexercise
+set6_t4_vol <- Vol %>%
+  dplyr::filter(coef == "conditionset6:timet4") %>%
+  dplyr::filter(log2fc >= 1 | log2fc <= -1)
+
+
+set6_t4_vol3_base <- vol_3_base %>%
   dplyr::filter(coef == "conditionset6:timet4") %>%
   dplyr::filter(log2fc >= 1 | log2fc <= -1)
 
 
 
 #Plot it using the  plot_volcano function
-t4_vol_all_plot <- plot_volcano(t4_vol, "DE lncRNAs post exercise ")
+set6_t4_vol_plot <- plot_volcano(set6_t4_vol, "DE lncRNAs set6 post exercise 0 base ")
+
+set6_t4_vol3_base_plot <- plot_volcano(set6_t4_vol3_base, "DE lncRNAs set6 post exercise 3 base ")
 
 
-#Reapeat same for volume_lncs
+grid.arrange(set6_t4_vol_plot, set6_t4_vol3_base_plot, ncol= 2)
 
-t3_vol <- Vol %>%
-  dplyr::filter(coef == "conditionset6:timet3")%>%
+
+#compare how set6 differs from others at mid exercise
+
+
+
+
+set6_t3_vol <- Vol %>%
+  dplyr::filter(coef == "conditionset6:timet3") %>%
   dplyr::filter(log2fc >= 1 | log2fc <= -1)
 
-t3_vol_ <- plot_volcano(t3_vol, "DE lncRNAs mid exercise")
+
+set6_t3_vol3_base <- vol_3_base %>%
+  dplyr::filter(coef == "conditionset6:timet3") %>%
+  dplyr::filter(log2fc >= 1 | log2fc <= -1)
 
 
-grid.arrange(t4_vol_all_plot, t3_vol_, ncol = 2)
+
+#Plot it using the  plot_volcano function
+set6_t3_vol_plot <- plot_volcano(set6_t3_vol, "DE lncRNAs set6 mid exercise 0 base ")
+
+set6_t3_vol3_base_plot <- plot_volcano(set6_t3_vol3_base, "DE lncRNAs set6 mid exercise 3 base ")
+
+
+grid.arrange(set6_t3_vol_plot, set6_t3_vol3_base_plot, ncol= 2)
+
+
+#compare both themid and post exercise
+grid.arrange(set6_t3_vol_plot, set6_t3_vol3_base_plot,set6_t4_vol_plot, set6_t4_vol3_base_plot )
+
+
+
+
+
+#Compare DE lncs interaction between set3 and postexercise
+set3_t4_vol <- Vol %>%
+  dplyr::filter(coef == "conditionset3:timet4") %>%
+  dplyr::filter(log2fc >= 1 | log2fc <= -1)
+
+
+set3_t4_vol6_base <- vol_6_baseline %>%
+  dplyr::filter(coef == "conditionset3:timet4") %>%
+  dplyr::filter(log2fc >= 1 | log2fc <= -1)
+
+
+set3_t3_vol <- Vol %>%
+  dplyr::filter(coef == "conditionset3:timet3") %>%
+  dplyr::filter(log2fc >= 1 | log2fc <= -1)
+
+
+set3_t3_vol6_base <- vol_6_baseline %>%
+  dplyr::filter(coef == "conditionset3:timet3") %>%
+  dplyr::filter(log2fc >= 1 | log2fc <= -1)
+
+
+#Plot it using the  plot_volcano function
+set3_t4_vol_plot <- plot_volcano(set3_t4_vol, "DE lncRNAs set3 post exercise 0 base ")
+
+set3_t4_vol6_base_plot <- plot_volcano(set3_t4_vol6_base, "DE lncRNAs set3 post exercise 6 base ")
+
+set3_t3_vol_plot <- plot_volcano(set3_t3_vol, "DE lncRNAs set3 mid exercise 0 base ")
+
+set3_t3_vol6_base_plot <- plot_volcano(set3_t3_vol6_base, "DE lncRNAs set3 mid exercise 6 base ")
+
+
+
+
+
+#asave both girded plots 
+jpeg(filename = "./plots/DE_vol_set3.jpeg", 
+     width = 1500, height = 1000, quality = 100)
+grid.arrange(set3_t3_vol_plot, set3_t3_vol6_base_plot,set3_t4_vol_plot, set3_t4_vol6_base_plot )
+dev.off()
+
+jpeg(filename = "./plots/DE_vol_set6.jpeg", 
+     width = 1500, height = 1000, quality = 100)
+grid.arrange(set6_t3_vol_plot, set6_t3_vol3_base_plot,set6_t4_vol_plot, set6_t4_vol3_base_plot )
+
+dev.off()
+
+
+
+
+#Apparently to get the difference between set 6 and set 3, use one of them as base.
+#The interaction effect of each is the flipped of the other#
+#IE, set6:time3 will give the same as set3:time3 when we use either set3 or set6 as base reference
+#Just that they will change sides, downregulated in one, upregulated in the other
+
+#see the plots saved above to understand 
+
+#check how they differed at mid exercise
+grid.arrange(set3_t3_vol_plot, set6_t3_vol_plot, set3_t3_vol6_base_plot)
+
+
+
+#check the difference at postexercise
+grid.arrange(set3_t4_vol_plot,set6_t4_vol_plot,set3_t4_vol6_base_plot)
+
+
+
+
+# t3_vol <- Vol %>%
+#   dplyr::filter(coef == "conditionset6:timet3")%>%
+#   dplyr::filter(log2fc >= 1 | log2fc <= -1)
+# 
+# t3_vol_ <- plot_volcano(t3_vol, "DE lncRNAs mid exercise")
+# 
+# 
+# grid.arrange(t4_vol_all_plot, t3_vol_, ncol = 2)
 
 
 
 
 
 #visualize the DE lncs
-lncs_of_int <- lncRNAS[lncRNAS$gene_name %in% t4_vol$target,]
+lncs_of_int <- lncRNAS[lncRNAS$gene_name %in% t4_6_base$target,]
 
 
 
@@ -90,7 +216,7 @@ met_df <- lncs_of_int %>%
 met_df$log_counts <- log(met_df$counts)
 
  ggplot(data = met_df, 
-               mapping = aes(x = training_status,
+               mapping = aes(x = condition,
                              y = lncRNA,
                              fill = counts
                )) +
