@@ -9,7 +9,7 @@ format: gfm
  Chidimma Phoebe Echebiri, Daniel Hammarstöm, Rafi Ahmad, Stian Ellefsen
 
 ## Repository organisation
-`/Manuscript`
+`/Man`
 
 
 - My Library.bib 
