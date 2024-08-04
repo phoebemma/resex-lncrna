@@ -82,17 +82,19 @@ volume_model_filt <- filt_model_parameters(mod_eval, mod_sum)%>%
 
 #saveRDS(volume_model_filt, "data/seqwrap_generated_models/filtered_vol_model_withset6_baseline.RDS")
 
+
+volume_model_filt <- readRDS("data/seqwrap_generated_models/filtered_volume_model.RDS")
 unique(volume_model_filt$coef)
 
 
 
 
-cond3_t3 <- volume_model_filt %>%
-  dplyr::filter(coef == "conditionset3:timet3")%>%
+cond6_t3 <- volume_model_filt %>%
+  dplyr::filter(coef == "conditionset6:timet3")%>%
   dplyr::filter(log2fc >= 1 | log2fc <= -1)
 
-cond3_t4 <- volume_model_filt %>%
-  dplyr::filter(coef == "conditionset3:timet4")%>%
+cond6_t4 <- volume_model_filt %>%
+  dplyr::filter(coef == "conditionset6:timet4")%>%
   dplyr::filter(log2fc >= 1 | log2fc <= -1)
 
 #make a volcano plot using the plot_volcano function
@@ -113,7 +115,7 @@ dev.off()
 #Extract the DE lncs of interest
 
 
-lncs_of_int <- lncRNAS[lncRNAS$gene_name %in% cond3_t4$target,]
+lncs_of_int <- lncRNAS[lncRNAS$gene_name %in% cond6_t3$target,]
 
 
 
@@ -240,7 +242,11 @@ hist(x$Pr...t..)
 hist(x$pval.unif)
 
 #saveRDS(x, "data/seqwrap_generated_models/conditions_models/int_model_set6_postexc_with_set3_as_baseline.RDS")
+#saveRDS(x, "data/seqwrap_generated_models/volume_coexpression_models/set3_midexc_zero_baseline_coexpression_model.RDS")
+#saveRDS(x, "data/seqwrap_generated_models/volume_coexpression_models/set3_postexc_zero_baseline_coexpression_model.RDS")
 
+#saveRDS(x, "data/seqwrap_generated_models/volume_coexpression_models/set6_postexc_zero_baseline_coexpression_model.RDS")
+#saveRDS(x, "data/seqwrap_generated_models/volume_coexpression_models/set6_midexc_zero_baseline_coexpression_model.RDS")
 
 
 #filter the dataframe to the required parameters
@@ -260,11 +266,25 @@ x_filt <- x %>%
   filter(fcthreshold == "s" & adj.p <= 0.05 & pval.unif >= 0.05 )
 
 #saveRDS(x_filt, "data/seqwrap_generated_models/conditions_models/filtered_int_model_set6_postexc_with_set3_baseline.RDS")
+#saveRDS(x_filt, "data/seqwrap_generated_models/volume_coexpression_models/filtered_set3_midexc_zero_baseline_coexpression_model.RDS")
+#saveRDS(x_filt, "data/seqwrap_generated_models/volume_coexpression_models/filtered_set3_postexc_zero_baseline_coexpression_model.RDS")
+
+#saveRDS(x_filt, "data/seqwrap_generated_models/volume_coexpression_models/filtered_set6_postexc_zero_baseline_coexpression_model.RDS")
+
+#saveRDS(x_filt, "data/seqwrap_generated_models/volume_coexpression_models/filtered_set6_midexc_zero_baseline_coexpression_model.RDS")
+
+
 #filter those completely dependent on the counts
 x_counts <- x_filt %>%
   subset(coef == "counts")
 
 length(unique(x_counts$geneid))
+#saveRDS(x_counts, "data/seqwrap_generated_models/volume_coexpression_models/set3_midexc_zero_base_correlation_counts.RDS")
+#saveRDS(x_counts, "data/seqwrap_generated_models/volume_coexpression_models/set3_postexc_zero_base_correlation_counts.RDS")
+#saveRDS(x_counts, "data/seqwrap_generated_models/volume_coexpression_models/set6_postexc_zero_base_correlation_counts.RDS")
+
+#saveRDS(x_counts, "data/seqwrap_generated_models/volume_coexpression_models/set6_midexc_zero_base_correlation_counts.RDS")
+
 
 
 #load genes data in fpkm

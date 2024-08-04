@@ -181,14 +181,46 @@ grid.arrange(set3_t4_vol_plot,set6_t4_vol_plot,set3_t4_vol6_base_plot)
 
 
 
-# t3_vol <- Vol %>%
-#   dplyr::filter(coef == "conditionset6:timet3")%>%
-#   dplyr::filter(log2fc >= 1 | log2fc <= -1)
-# 
-# t3_vol_ <- plot_volcano(t3_vol, "DE lncRNAs mid exercise")
-# 
-# 
-# grid.arrange(t4_vol_all_plot, t3_vol_, ncol = 2)
+#Explore the volume model with set 0 as reference level
+
+
+vol_0_set6_t3 <- Vol %>%
+  dplyr::filter(coef == "conditionset6:timet3")%>%
+  dplyr::filter(log2fc >= 1 | log2fc <= -1)
+
+vol_0_set6_t4 <- Vol %>%
+  dplyr::filter(coef == "conditionset6:timet4")%>%
+  dplyr::filter(log2fc >= 1 | log2fc <= -1)
+
+
+
+vol_0_set3_t3 <- Vol %>%
+  dplyr::filter(coef == "conditionset3:timet3")%>%
+  dplyr::filter(log2fc >= 1 | log2fc <= -1)
+
+vol_0_set3_t4 <- Vol %>%
+  dplyr::filter(coef == "conditionset3:timet4")%>%
+  dplyr::filter(log2fc >= 1 | log2fc <= -1)
+
+
+
+vol_0_set6_t3_plot <- plot_volcano(vol_0_set6_t3, "DE lncRNAs set 6  mid exercise set zero reference ")
+
+
+vol_0_set6_t4_plot <- plot_volcano(vol_0_set6_t4, "DE lncRNAs set 6  post exercise set zero reference ")
+
+
+
+vol_0_set3_t3_plot <- plot_volcano(vol_0_set3_t3, "DE lncRNAs set 3  mid exercise set zero reference ")
+
+
+
+vol_0_set3_t4_plot <- plot_volcano(vol_0_set3_t4, "DE lncRNAs set 3  post exercise set zero reference ")
+
+
+
+
+grid.arrange(vol_0_set6_t3_plot,vol_0_set3_t3_plot, vol_0_set6_t4_plot, vol_0_set3_t4_plot )
 
 
 
