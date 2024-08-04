@@ -7,7 +7,7 @@ Chidimma Phoebe Echebiri, Daniel Hammarst�m, Rafi Ahmad, Stian Ellefsen
 
 ## Repository organisation
 
-`/Manuscript`
+`/Man`
 
 - My Library.bib
 - lncRNA-manuscript.qmd
