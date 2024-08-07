@@ -1,16 +1,45 @@
 ---
 title: "Effects of progressive resistance training on the expression of long non-coding RNAs in skeletal muscle of young adults"
-format: docx
-output:
-  bookdown::word_document2: default
-  bookdown::pdf_documents: default
-output-file: Man/manuscript.docx 
-editor: visual
+format:
+  docx:
+    reference-doc: resources/custom-reference-doc.docx
+author: 
+  - "Chidimma Phoebe Echebiri^a^"
+  - "H&aring;vard Hamarsland^b^"
+  - "Rafi Ahmad^a^"
+  - "Stian Ellefsen^b^"
+  - "Daniel Hammarstr&ouml;m^b^"
 csl: resources/rna-biology-csl.csl
-bibliography: ref-lib.bib
-target_journal: https://www.tandfonline.com/journals/krnb20
+bibliography: resources/ref-lib.bib
 prefer-html: true
 ---
+
+
+
+<!-- target journal: https://www.tandfonline.com/journals/krnb20 --> 
+<!-- Style requirements: This Journal allows Format-Free Submission. You don't need to format your manuscript to meet any special style requirements, but your submission should be easy to read and comment on. Your references can be in any scholarly citation format, so long as formatting is consistent throughout the article. -->
+<!-- See: https://www.tandfonline.com/action/authorSubmission?show=instructions&journalCode=krnb20#Style_requirements  -->
+
+
+::: {custom-style="author-meta"}
+^a^ Department of Biotechnology, Inland Norway University of Applied Sciences
+
+^b^ Section for Health and Exercise Physiology, Department of Public Health and Sport Sciences, Inland Norway University of Applied Sciences, Lillehammer, Norway
+
+
+Correspondance: Chidimma Phoebe Echebiri (chidimma.echebiri@inn.no), Daniel Hammarstr&ouml;m (daniel.hammarstrom@inn.no).
+
+:::
+
+::: {custom-style="abstracttitle"} 
+Abstract 
+:::
+
+::: {custom-style="Abstract"}
+
+:::
+
+
 
 ```{r, setup, include=FALSE}
 
@@ -85,11 +114,22 @@ genes_fpkm <- readRDS("data/Ct_genes_FPKM.RDS")
 The benefits of progressive resistance exercise training (RT) are largely known and relatively well-researched. RT is a potent way of stimulating an increase in muscle strength and mass which contribute to an individual's quality of life. Loss of muscle strength and mass tend to occur as a result of aging and certain disease conditions. The challenge often lies in personalizing an individual's regimen as different individuals respond differently to the same RT program. As per today, a one-size-fits-all approach is in use. This means it is necessary to not only understand the responses to RT, but also understand what regulates those responses. Lon non-coding RNAs (lncRNAs) are said to play regulatory roles in different aspects of cellular physiology. Most studies today are focused on their roles in diseases, especially cancers. This study is focused on understanding the effects of RT on the expression of long non-coding RNAs in skeletal muscle of young adults; as a step towards understanding how responses to RT are regulated. lncRNAs expressed in the *vastus lateralis* muscle of young adults were modeled using glmmTMB to analyse the effects of RT in trained versus untrained legs, and the effects of volume of RT on trained legs. lmer was used to build a model that predicted protein-coding genes that are coexpressed with the differentially expressed lncRNAs based on the correlation of their expression patterns.
 
 ## Introduction
+
 <!-- Proposed intro -->
+
 The skeletal muscle system plays crucial roles in health maintenance across the lifespan, including regulating whole-body energy homeostasis and enabling physical independence. Therefore, it serves as a critical therapeutic target for overall health promotion, with physical exercise being the most effective non-pharmacological intervention to promote skeletal muscle health. More specifically, progressive resistance training (RT) is known to increase skeletal muscle mass in a volume-dependent manner [@hammarstrom_benefits_2020] and has been shown to improve multiple indices of health in various populations, such as reducing blood glucose levels [@xie_effects_2022; @westcott_resistance_2012] and improving strength and performance in older adults [@liu_progressive_2009] and in children with cerebral palsy [@hanssen_progressive_2022], improve health status and pain intensity in women with fibromyalgia [@larsson_resistance_2015; @busch_resistance_2013], counteract the adverse effects of androgen deprivation therapy in prostate cancer patients [@houben_resistance_2023], as well as decrease menopause-related symptoms [@berin_resistance_2019].
 
-Mechanistically, skeletal muscles adapt to repeated RT-induced stress with increased quality and quantity through several parallel processes, including the incorporation of muscle-specific stem cells, a transient increase in ribosomal biogenesis[@hammarstrom_ribosome_2022], and protein synthesis, which promotes muscle hypertrophy, structural adaptation in connective tissues and an altered muscle phenotype. Although selected components of the adaptive response to RT are well-described, regulatory mechanisms, such as roles of non-protein-coding RNA, including long non-coding RNA (lncRNAs), are much less understood in the context of skeletal muscle adapting to RT. 
-<!-- End proposed intro -->
+Mechanistically, skeletal muscles adapt to repeated RT-induced stress with increased quality and mass through several parallel processes, including the incorporation of muscle-specific stem cells into muscle cells, a transient increase in ribosomal biogenesis[@hammarstrom_ribosome_2022] and protein synthesis, which promotes muscle hypertrophy, structural adaptation in connective tissues and an altered muscle phenotype. Although selected components of the adaptive response to RT are well-described, regulatory mechanisms, such as roles of non-protein-coding RNA, including long non-coding RNA (lncRNAs), are much less understood in the context of skeletal muscle adapting to RT. 
+
+
+- Differential expressed lncRNAs
+- Infer roles by correlating with protein coding RNA
+
+
+<!-- End proposed intro --> 
+
+
+
 The skeletal muscle is important for physical health and vitality. It responds to both use and disuse by hypertrophying, and loss of muscle strength and mass respectively [@lim_evidence-based_2022; @khan_increased_2020 ]. Aging in humans correlate to loss of muscle mass and strength [@power_human_2013; @volpi_muscle_2004 ] which in turn correlate to the risks of falls, injuries and impaired mobility @wolfson_strength_1995 . Certain disease conditions like chronic obstructive pulmonary disease (COPD) could also accelerate loss in muscle mass and strength @molmen_chronic_2021 . Thus, muscle strength and mass are important for improved quality of life.
 
 Progressive resistance exercise training (RT); a type of exercise where the skeletal muscle is exercised against progressively increased types of resistance @liu_progressive_2009 such as free weights , is the most potent non-pharmacological method of stimulating muscle hypertrophy and countering the loss in muscle strength and mass [@lim_evidence-based_2022; @hurst_resistance_2022] . RT has been shown to reduce blood glucose levels [@xie_effects_2022; @westcott_resistance_2012] improve strength and performance in older adults @liu_progressive_2009 and in children with cerebral palsy @hanssen_progressive_2022 , improve health status and pain intensity in women with fibromyalgia [@larsson_resistance_2015; @busch_resistance_2013] , counteract the adverse effects of androgen deprivation therapy in prostate cancer patients @houben_resistance_2023 , as well as decrease menopause-related symptoms @berin_resistance_2019. The benefits of RT are dependent on its volume @hammarstrom_benefits_2020 and extend beyond physical health to include the mental health of participants @kekalainen_effects_2018 . Besides volume, factors such as ribosome biogenesis, transcriptome profile and responses, metabolites profile *etc* determine an individual's response to RT [@lim_evidence-based_2022; @hammarstrom_ribosome_2022].
@@ -105,6 +145,8 @@ This study aims to identify lncRNAs that are differentially expressed following 
 ### Study design, RNA extraction and sequencing
 
 Study design , sample preparation and RNA sequencing were done as described by Hamarsland et al (in_view).
+
+
 
 ### Data Analyses
 
